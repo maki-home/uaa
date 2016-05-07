@@ -12,8 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
-import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
-import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -69,14 +67,6 @@ public class UaaApplication {
     @Bean
     JSR353Module jsr353Module() {
         return new JSR353Module();
-    }
-
-    @Configuration
-    static class CustomizedRestMvcConfiguration extends RepositoryRestConfigurerAdapter {
-        @Override
-        public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
-            config.setBasePath("/api");
-        }
     }
 
     @Configuration
