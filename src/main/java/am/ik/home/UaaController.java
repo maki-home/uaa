@@ -26,6 +26,7 @@ public class UaaController {
     @GetMapping(path = "/user")
     JsonObject user(@AuthenticationPrincipal(expression = "member") Member member) {
         return Json.createObjectBuilder()
+                .add("id", member.getMemberId().toString())
                 .add("name", Json.createObjectBuilder()
                         .add("givenName", member.getGivenName())
                         .add("familyName", member.getFamilyName()))
