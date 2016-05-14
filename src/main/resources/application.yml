@@ -3,8 +3,6 @@ server.context-path: /uaa
 
 spring.jpa.properties.hibernate.format_sql: true
 spring.datasource.sql-script-encoding: UTF-8
-spring.mvc.view.prefix: /WEB-INF/jsp/
-spring.mvc.view.suffix: .jsp
 spring.data.rest.base-path: /api
 security.oauth2.authorization.token-key-access: permitAll()
 logging.level.org.hibernate.SQL: DEBUG

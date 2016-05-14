@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Maki Home UAA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/2.26.3/css/uikit.gradient.min.css"/>
+</head>
+
+<body>
+
+<div class="uk-grid">
+    <div class="uk-width-1-5"></div>
+    <div class="uk-width-3-5">
+        <h1>Maki Home UAA</h1>
+        <a th:href="@{${@environment.getProperty('moneygr.url', 'http://localhost:18080')}}">Go back to Moneygr</a>
+
+        <table class="uk-table uk-table-striped">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+            </tr>
+            <tr>
+                <td><span th:text="${member.familyName}"></span> <span th:text="${member.givenName}"></span></td>
+                <td><span th:text="${member.email}"></span></td>
+            </tr>
+        </table>
+
+        <form th:action="@{/logout}" method="post">
+            <button class="uk-button">Logout</button>
+        </form>
+    </div>
+    <div class="uk-width-1-5"></div>
+</div>
+</body>
+</html>
