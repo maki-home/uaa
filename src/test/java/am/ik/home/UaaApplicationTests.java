@@ -41,25 +41,14 @@ public class UaaApplicationTests {
         // issue token
         JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
 
-        assertThat(res1.get("access_token").asText()).matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
-        assertThat(res1.get("refresh_token").asText()).matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
+        assertThat(res1.get("access_token").asText()).isNotEmpty();
+        assertThat(res1.get("refresh_token").asText()).isNotEmpty();
         assertThat(res1.get("scope").asText()).isEqualTo("read write trust");
         assertThat(res1.get("expires_in").asLong()).isLessThan(TimeUnit.DAYS.toSeconds(1));
-
-        // check token
-        RequestEntity<?> req2 = RequestEntity.get(UriComponentsBuilder.fromUriString(uri)
-                .pathSegment("oauth", "check_token")
-                .queryParam("token", res1.get("access_token").asText())
-                .build().toUri())
-                .header("Authorization", "Basic " + Base64.getEncoder().encodeToString("checker:checker".getBytes()))
-                .build();
-        JsonNode res2 = restTemplate.exchange(req2, JsonNode.class).getBody();
-        assertThat(res2.get("user_name").asText()).isEqualTo("maki@example.com");
-        assertThat(res2.get("scope").size()).isEqualTo(3);
-        assertThat(res2.get("scope").get(0).asText()).isEqualTo("read");
-        assertThat(res2.get("scope").get(1).asText()).isEqualTo("write");
-        assertThat(res2.get("scope").get(2).asText()).isEqualTo("trust");
-        assertThat(res2.get("authorities").get(0).asText()).isEqualTo("ROLE_USER");
+        assertThat(res1.get("family_name").asText()).isEqualTo("Maki");
+        assertThat(res1.get("given_name").asText()).isEqualTo("Toshiaki");
+        assertThat(res1.get("display_name").asText()).isEqualTo("Maki Toshiaki");
+        assertThat(res1.get("user_id").asText()).matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
     }
 
     @Test
@@ -76,23 +65,14 @@ public class UaaApplicationTests {
         // issue token
         JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
 
-        assertThat(res1.get("access_token").asText()).matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
-        assertThat(res1.get("refresh_token").asText()).matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
+        assertThat(res1.get("access_token").asText()).isNotEmpty();
+        assertThat(res1.get("refresh_token").asText()).isNotEmpty();
         assertThat(res1.get("scope").asText()).isEqualTo("read");
         assertThat(res1.get("expires_in").asLong()).isLessThan(TimeUnit.HOURS.toSeconds(1));
-
-        // check token
-        RequestEntity<?> req2 = RequestEntity.get(UriComponentsBuilder.fromUriString(uri)
-                .pathSegment("oauth", "check_token")
-                .queryParam("token", res1.get("access_token").asText())
-                .build().toUri())
-                .header("Authorization", "Basic " + Base64.getEncoder().encodeToString("checker:checker".getBytes()))
-                .build();
-        JsonNode res2 = restTemplate.exchange(req2, JsonNode.class).getBody();
-        assertThat(res2.get("user_name").asText()).isEqualTo("maki@example.com");
-        assertThat(res2.get("scope").size()).isEqualTo(1);
-        assertThat(res2.get("scope").get(0).asText()).isEqualTo("read");
-        assertThat(res2.get("authorities").get(0).asText()).isEqualTo("ROLE_USER");
+        assertThat(res1.get("family_name").asText()).isEqualTo("Maki");
+        assertThat(res1.get("given_name").asText()).isEqualTo("Toshiaki");
+        assertThat(res1.get("display_name").asText()).isEqualTo("Maki Toshiaki");
+        assertThat(res1.get("user_id").asText()).matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
     }
 
     @Rule
@@ -192,6 +172,7 @@ public class UaaApplicationTests {
         RequestEntity<?> req3 = RequestEntity.get(UriComponentsBuilder.fromUriString(uri)
                 .pathSegment("api", "members", "search", "findByIds")
                 .queryParam("ids", res1.get("user_id").asText())
+                .queryParam("ids", "00000000-0000-0000-0000-000000000000")
                 .build().toUri())
                 .header("Authorization", "Bearer " + accessToken)
                 .build();
