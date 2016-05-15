@@ -21,7 +21,7 @@ public class Member implements Serializable {
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     @GeneratedValue(generator = "uuid")
     @Column(columnDefinition = "varchar(36)")
-    private UUID memberId;
+    private String memberId;
 
     private String givenName;
     private String familyName;
