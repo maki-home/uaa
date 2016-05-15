@@ -173,4 +173,31 @@ public class UaaApplicationTests {
         restTemplate.exchange(req2, JsonNode.class).getBody();
     }
 
+    @Test
+    public void testFindByIdsByTrustedClient() throws Exception {
+        RequestEntity<?> req1 = RequestEntity.post(UriComponentsBuilder.fromUriString(uri)
+                .pathSegment("oauth", "token")
+                .queryParam("grant_type", "password")
+                .queryParam("username", "maki@example.com")
+                .queryParam("password", "demo")
+                .build().toUri())
+                .header("Authorization", "Basic " + Base64.getEncoder().encodeToString("acme:acmesecret".getBytes()))
+                .build();
+
+        // issue token
+        JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
+        String accessToken = res1.get("access_token").asText();
+
+        // get member
+        RequestEntity<?> req3 = RequestEntity.get(UriComponentsBuilder.fromUriString(uri)
+                .pathSegment("api", "members", "search", "findByIds")
+                .queryParam("ids", res1.get("user_id").asText())
+                .build().toUri())
+                .header("Authorization", "Bearer " + accessToken)
+                .build();
+        JsonNode res3 = restTemplate.exchange(req3, JsonNode.class).getBody();
+        assertThat(res3.get("_embedded").get("members").get(0).get("givenName").asText()).isEqualTo("Toshiaki");
+        assertThat(res3.get("_embedded").get("members").get(0).get("familyName").asText()).isEqualTo("Maki");
+        assertThat(res3.get("_embedded").get("members").get(0).get("email").asText()).isEqualTo("maki@example.com");
+    }
 }

@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -24,7 +26,7 @@ public class MemberRepositoryTests {
     MemberRepository memberRepository;
 
     @Test
-    public void test() {
+    public void testFindByEmail() {
         Member member = Member.builder()
                 .email("foo@example.com")
                 .familyName("Yamada")
@@ -33,6 +35,25 @@ public class MemberRepositoryTests {
         Optional<Member> m = memberRepository.findByEmail("foo@example.com");
         assertThat(m.isPresent()).isTrue();
         assertThat(m.get()).isEqualTo(member);
+    }
+
+
+    @Test
+    public void testFindByIds() {
+        Member member1 = Member.builder()
+                .email("foo@example.com")
+                .familyName("Yamada")
+                .givenName("Taro").build();
+        Member member2 = Member.builder()
+                .email("bar@example.com")
+                .familyName("Yamada")
+                .givenName("Hanako").build();
+        entityManager.persist(member1);
+        entityManager.persist(member2);
+        List<Member> m = memberRepository.findByIds(Arrays.asList(member1.getMemberId(), member2.getMemberId()));
+        assertThat(m).hasSize(2);
+        assertThat(m.get(0)).isEqualTo(member2);
+        assertThat(m.get(1)).isEqualTo(member1);
     }
 
     @Configuration
