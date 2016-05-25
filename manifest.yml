@@ -1,0 +1,9 @@
+---
+applications:
+  - name: home-uaa
+    memory: 1g
+    instances: 1
+    path: target/uaa-0.0.1-SNAPSHOT.jar
+    buildpack: https://github.com/cloudfoundry/java-buildpack.git
+    env:
+      moneygr.url: http://moneygr.cfapps.pez.pivotal.io
