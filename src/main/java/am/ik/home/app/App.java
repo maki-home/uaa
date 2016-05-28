@@ -14,7 +14,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -26,7 +26,6 @@ public class App implements Serializable {
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     @GeneratedValue(generator = "uuid")
     @Column(columnDefinition = "varchar(36)")
-    @NotEmpty
     private String appId;
     @NotEmpty
     @Size(max = 255)
@@ -40,17 +39,17 @@ public class App implements Serializable {
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @NotEmpty
-    private List<AppRole> roles;
+    private Set<AppRole> roles;
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @NotEmpty
-    private List<AppGrantType> grantTypes;
+    private Set<AppGrantType> grantTypes;
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    private List<AppScope> scopes;
+    private Set<AppScope> scopes;
     @ElementCollection(fetch = FetchType.EAGER)
     @NotEmpty
-    private List<String> redirectUrls;
+    private Set<String> redirectUrls;
     @Max(600000)
     @Min(0)
     @NotNull
@@ -61,6 +60,6 @@ public class App implements Serializable {
     private Integer refreshTokenValiditySeconds;
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    private List<AppScope> autoApproveScopes;
+    private Set<AppScope> autoApproveScopes;
 
 }

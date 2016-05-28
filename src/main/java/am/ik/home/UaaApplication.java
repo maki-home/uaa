@@ -44,6 +44,7 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -102,13 +103,13 @@ public class UaaApplication {
                         .appName("Moneygr")
                         .appUrl("http://localhost:18080")
                         .appSecret(UUID.randomUUID().toString())
-                        .grantTypes(Arrays.asList(AppGrantType.AUTHORIZATION_CODE, AppGrantType.PASSWORD, AppGrantType.REFRESH_TOKEN))
-                        .roles(Arrays.asList(AppRole.CLIENT, AppRole.TRUSTED_CLIENT))
-                        .scopes(Arrays.asList(AppScope.READ, AppScope.WRITE))
-                        .autoApproveScopes(Arrays.asList(AppScope.values()))
+                        .grantTypes(new HashSet<>(Arrays.asList(AppGrantType.AUTHORIZATION_CODE, AppGrantType.PASSWORD, AppGrantType.REFRESH_TOKEN)))
+                        .roles(new HashSet<>(Arrays.asList(AppRole.CLIENT, AppRole.TRUSTED_CLIENT)))
+                        .scopes(new HashSet<>(Arrays.asList(AppScope.READ, AppScope.WRITE)))
+                        .autoApproveScopes(new HashSet<>(Arrays.asList(AppScope.values())))
                         .accessTokenValiditySeconds((int) TimeUnit.MINUTES.toSeconds(30))
                         .refreshTokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(3))
-                        .redirectUrls(Collections.singletonList("http://localhost:18080/login"))
+                        .redirectUrls(Collections.singleton("http://localhost:18080/login"))
                         .build());
             }
             if (!appRepository.findByAppName("Guest App").isPresent()) {
@@ -116,13 +117,13 @@ public class UaaApplication {
                         .appName("Guest App")
                         .appUrl("http://guest.example.com")
                         .appSecret(UUID.randomUUID().toString())
-                        .grantTypes(Arrays.asList(AppGrantType.AUTHORIZATION_CODE, AppGrantType.IMPLICIT, AppGrantType.PASSWORD, AppGrantType.REFRESH_TOKEN))
-                        .roles(Arrays.asList(AppRole.CLIENT))
-                        .scopes(Arrays.asList(AppScope.READ))
-                        .autoApproveScopes(Arrays.asList(AppScope.values()))
+                        .grantTypes(new HashSet<>(Arrays.asList(AppGrantType.AUTHORIZATION_CODE, AppGrantType.IMPLICIT, AppGrantType.PASSWORD, AppGrantType.REFRESH_TOKEN)))
+                        .roles(new HashSet<>(Arrays.asList(AppRole.CLIENT)))
+                        .scopes(new HashSet<>(Arrays.asList(AppScope.READ)))
+                        .autoApproveScopes(new HashSet<>(Arrays.asList(AppScope.values())))
                         .accessTokenValiditySeconds((int) TimeUnit.MINUTES.toSeconds(3))
                         .refreshTokenValiditySeconds((int) TimeUnit.HOURS.toSeconds(3))
-                        .redirectUrls(Collections.singletonList("http://guest.example.com/login"))
+                        .redirectUrls(Collections.singleton("http://guest.example.com/login"))
                         .build());
             }
             if (!appRepository.findByAppName("3rd App").isPresent()) {
@@ -130,13 +131,13 @@ public class UaaApplication {
                         .appName("3rd App")
                         .appUrl("http://3rd.example.com")
                         .appSecret(UUID.randomUUID().toString())
-                        .grantTypes(Arrays.asList(AppGrantType.AUTHORIZATION_CODE, AppGrantType.IMPLICIT, AppGrantType.REFRESH_TOKEN))
-                        .roles(Arrays.asList(AppRole.CLIENT))
-                        .scopes(Arrays.asList(AppScope.READ, AppScope.WRITE))
-                        .autoApproveScopes(Arrays.asList(AppScope.values()))
+                        .grantTypes(new HashSet<>(Arrays.asList(AppGrantType.AUTHORIZATION_CODE, AppGrantType.IMPLICIT, AppGrantType.REFRESH_TOKEN)))
+                        .roles(new HashSet<>(Arrays.asList(AppRole.CLIENT)))
+                        .scopes(new HashSet<>(Arrays.asList(AppScope.READ, AppScope.WRITE)))
+                        .autoApproveScopes(new HashSet<>(Arrays.asList(AppScope.values())))
                         .accessTokenValiditySeconds((int) TimeUnit.MINUTES.toSeconds(3))
                         .refreshTokenValiditySeconds((int) TimeUnit.HOURS.toSeconds(3))
-                        .redirectUrls(Collections.singletonList("http://3rd.example.com/login"))
+                        .redirectUrls(Collections.singleton("http://3rd.example.com/login"))
                         .build());
             }
         };
@@ -166,11 +167,11 @@ public class UaaApplication {
                     .formLogin().loginPage("/login").permitAll()
                     .and()
                     .requestMatchers()
-                    .antMatchers("/", /* "/apps", */ "/login", "/oauth/authorize", "/oauth/confirm_access")
+                    .antMatchers("/", "/apps","/login", "/oauth/authorize", "/oauth/confirm_access")
                     .and()
                     .authorizeRequests()
                     .antMatchers("/login**").permitAll()
-                    //.antMatchers("/apps**").access("hasRole('ADMIN')")
+                    .antMatchers("/apps**").access("hasRole('ADMIN')")
                     .anyRequest().authenticated()
                     .and().csrf().ignoringAntMatchers("/oauth/**");
         }

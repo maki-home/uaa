@@ -17,12 +17,18 @@ public class AppController {
     private final AppRepository appRepository;
 
     @GetMapping(params = "new")
-    String newApp() {
-        return "apps/edit";
+    String newApp(Model model) {
+        model.addAttribute("app", new App());
+        return "apps/new";
     }
 
     @PostMapping(params = "new")
-    String newApp(RedirectAttributes attributes) {
+    String newApp(@Validated App app, BindingResult result) {
+        if (result.hasErrors()) {
+            return "apps/new";
+        }
+        app.setAppSecret(UUID.randomUUID().toString());
+        appRepository.save(app);
         return "redirect:/";
     }
 
@@ -37,13 +43,11 @@ public class AppController {
     String edit(@RequestParam("appId") String appId,
                 @RequestParam(name = "regenerateSecret", defaultValue = "false") boolean regenerateSecret,
                 @Validated App app, BindingResult result,
-                Model model, RedirectAttributes attributes) {
-        System.out.println(app);
+                RedirectAttributes attributes) {
         if (result.hasErrors()) {
             return "apps/edit";
         }
         app.setAppId(appId);
-        System.out.println(regenerateSecret);
         if (regenerateSecret) {
             app.setAppSecret(UUID.randomUUID().toString());
         }
@@ -54,6 +58,7 @@ public class AppController {
 
     @DeleteMapping
     String delete(@RequestParam("appId") String appId) {
+        appRepository.delete(appId);
         return "redirect:/";
     }
 }

@@ -41,13 +41,15 @@
                 <td><span th:text="${app.appName}"></span></td>
                 <td><a th:href="${app.appUrl}" th:text="${app.appUrl}"></a></td>
                 <td sec:authorize="${hasRole('ADMIN')}">
-                    <div class="uk-button-group"
-                         th:attr="data-id=${app.appId}">
-                        <a class="uk-button" th:href="@{/apps(edit=,appId=${app.appId})}"><i
-                                class="uk-icon-edit"></i></a>
-                        <button class="uk-button uk-button-danger"
-                                onclick="return deleteApp(this);"><i class="uk-icon-trash"></i></button>
-                    </div>
+                    <form th:action="@{/apps}">
+                        <input type="hidden" name="appId" th:value="${app.appId}"/>
+                        <div class="uk-button-group">
+                            <button class="uk-button" type="submit" name="edit"><i class="uk-icon-edit"></i></button>
+                            <button class="uk-button uk-button-danger" type="submit" formmethod="post"
+                                    th:formaction="@{/apps(_method=delete)}"><i
+                                    class="uk-icon-trash"></i></button>
+                        </div>
+                    </form>
                 </td>
             </tr>
         </table>
