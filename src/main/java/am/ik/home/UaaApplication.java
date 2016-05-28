@@ -44,6 +44,7 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
@@ -100,7 +101,7 @@ public class UaaApplication {
                 appRepository.save(App.builder()
                         .appName("Moneygr")
                         .appUrl("http://localhost:18080")
-                        .appSecret("acmeSecret")
+                        .appSecret(UUID.randomUUID().toString())
                         .grantTypes(Arrays.asList(AppGrantType.AUTHORIZATION_CODE, AppGrantType.PASSWORD, AppGrantType.REFRESH_TOKEN))
                         .roles(Arrays.asList(AppRole.CLIENT, AppRole.TRUSTED_CLIENT))
                         .scopes(Arrays.asList(AppScope.READ, AppScope.WRITE))
@@ -114,7 +115,7 @@ public class UaaApplication {
                 appRepository.save(App.builder()
                         .appName("Guest App")
                         .appUrl("http://guest.example.com")
-                        .appSecret("guest")
+                        .appSecret(UUID.randomUUID().toString())
                         .grantTypes(Arrays.asList(AppGrantType.AUTHORIZATION_CODE, AppGrantType.IMPLICIT, AppGrantType.PASSWORD, AppGrantType.REFRESH_TOKEN))
                         .roles(Arrays.asList(AppRole.CLIENT))
                         .scopes(Arrays.asList(AppScope.READ))
@@ -128,7 +129,7 @@ public class UaaApplication {
                 appRepository.save(App.builder()
                         .appName("3rd App")
                         .appUrl("http://3rd.example.com")
-                        .appSecret("3rd")
+                        .appSecret(UUID.randomUUID().toString())
                         .grantTypes(Arrays.asList(AppGrantType.AUTHORIZATION_CODE, AppGrantType.IMPLICIT, AppGrantType.REFRESH_TOKEN))
                         .roles(Arrays.asList(AppRole.CLIENT))
                         .scopes(Arrays.asList(AppScope.READ, AppScope.WRITE))
@@ -165,10 +166,11 @@ public class UaaApplication {
                     .formLogin().loginPage("/login").permitAll()
                     .and()
                     .requestMatchers()
-                    .antMatchers("/", "/login", "/oauth/authorize", "/oauth/confirm_access")
+                    .antMatchers("/", /* "/apps", */ "/login", "/oauth/authorize", "/oauth/confirm_access")
                     .and()
                     .authorizeRequests()
                     .antMatchers("/login**").permitAll()
+                    //.antMatchers("/apps**").access("hasRole('ADMIN')")
                     .anyRequest().authenticated()
                     .and().csrf().ignoringAntMatchers("/oauth/**");
         }

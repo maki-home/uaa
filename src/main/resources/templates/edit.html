@@ -85,6 +85,20 @@
                           class="uk-text-danger">error!</span>
                 </div>
             </div>
+            <div class="uk-form-row" sec:authorize="${hasRole('ADMIN')}">
+                <span class="uk-form-label">Role</span>
+                <div class="uk-form-controls">
+                    <label><input name="roles" type="checkbox" value="USER"
+                                  th:checked="${memberForm.roles != null and memberForm.roles.contains(T(am.ik.home.member.MemberRole).USER)}"/>
+                        USER</label>
+                    <label><input name="roles" type="checkbox" value="ADMIN"
+                                  th:checked="${memberForm.roles != null and memberForm.roles.contains(T(am.ik.home.member.MemberRole).ADMIN)}"/>
+                        ADMIN</label>
+                    <span th:if="${#fields.hasErrors('roles')}"
+                          th:errors="*{roles}"
+                          class="uk-text-danger">error!</span>
+                </div>
+            </div>
             <div class="uk-form-row">
                 <input type="hidden" name="edit"/>
                 <button class="uk-width-1-1 uk-button uk-button-primary uk-button-large"><i class="uk-icon-edit"></i>
@@ -93,8 +107,8 @@
             </div>
         </form>
         <hr/>
-        <form th:action="@{/logout}" method="post">
-            <button class="uk-button">Logout</button>
+        <form th:action="@{/}" method="get">
+            <button class="uk-button">Back</button>
         </form>
     </div>
     <div class="uk-width-1-10"></div>

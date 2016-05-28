@@ -1,5 +1,7 @@
 package am.ik.home.member;
 
+import am.ik.home.app.App;
+import am.ik.home.app.AppRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,14 +13,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 public class MemberController {
     private final MemberService memberService;
     private final MemberRepository memberRepository;
+    private final AppRepository appRepository;
 
     @GetMapping("/")
-    String home() {
+    String home(Model model) {
+        List<App> apps = appRepository.findAll();
+        model.addAttribute("apps", apps);
         return "home";
     }
 

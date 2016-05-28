@@ -29,6 +29,31 @@
             </tr>
         </table>
         <a class="uk-button uk-button-primary" th:href="@{/(edit=)}">Edit</a>
+
+        <h3>Apps</h3>
+        <table class="uk-table uk-table-striped">
+            <tr>
+                <th>App Name</th>
+                <th>App Url</th>
+                <th sec:authorize="${hasRole('ADMIN')}">&nbsp;</th>
+            </tr>
+            <tr th:each="app : ${apps}">
+                <td><span th:text="${app.appName}"></span></td>
+                <td><a th:href="${app.appUrl}" th:text="${app.appUrl}"></a></td>
+                <td sec:authorize="${hasRole('ADMIN')}">
+                    <div class="uk-button-group"
+                         th:attr="data-id=${app.appId}">
+                        <a class="uk-button" th:href="@{/apps(edit=,appId=${app.appId})}"><i
+                                class="uk-icon-edit"></i></a>
+                        <button class="uk-button uk-button-danger"
+                                onclick="return deleteApp(this);"><i class="uk-icon-trash"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <a class="uk-button uk-button-primary" th:href="@{/apps(new=)}" sec:authorize="${hasRole('ADMIN')}">Create New
+            App</a>
         <hr/>
         <form th:action="@{/logout}" method="post">
             <button class="uk-button">Logout</button>
