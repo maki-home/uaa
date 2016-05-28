@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -70,7 +71,7 @@
                     </div>
                 </div>
             </div>
-            <div class="uk-form-row">
+            <div class="uk-form-row" sec:authorize="${hasRole('ADMIN')}">
                 <span class="uk-form-label">Role</span>
                 <div class="uk-form-controls">
                     <label><input name="roles" type="checkbox" value="USER"

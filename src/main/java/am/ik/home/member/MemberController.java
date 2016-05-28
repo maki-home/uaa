@@ -33,7 +33,7 @@ public class MemberController {
     }
 
     @PostMapping(path = "/", params = "edit")
-    String edit(@AuthenticationPrincipal(expression = "member.memberId") String memberId,
+    String edit(@AuthenticationPrincipal(expression = "member") Member member,
                 @Validated MemberForm form, BindingResult result, Model model,
                 RedirectAttributes attributes) {
         if (result.hasErrors()) {
@@ -42,7 +42,10 @@ public class MemberController {
         }
         Member updated = new Member();
         BeanUtils.copyProperties(form, updated);
-        updated.setMemberId(memberId);
+        updated.setMemberId(member.getMemberId());
+        if (member.getRoles().contains(MemberRole.ADMIN)) {
+            updated.setRoles(member.getRoles());
+        }
         memberService.save(updated, form.getRawPassword());
         attributes.addFlashAttribute("updated", true);
         return "redirect:/?edit";

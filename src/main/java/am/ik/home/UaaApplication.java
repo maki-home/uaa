@@ -41,6 +41,7 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
@@ -82,6 +83,15 @@ public class UaaApplication {
                 member.setGivenName("Toshiaki");
                 member.setPassword(passwordEncoder().encode("demo"));
                 member.setRoles(Arrays.asList(MemberRole.USER, MemberRole.ADMIN));
+                memberRepository.save(member);
+            }
+            if (!memberRepository.findByEmail("demo@example.com").isPresent()) {
+                Member member = new Member();
+                member.setEmail("demo@example.com");
+                member.setFamilyName("Demo");
+                member.setGivenName("Taro");
+                member.setPassword(passwordEncoder().encode("demo"));
+                member.setRoles(Collections.singletonList(MemberRole.USER));
                 memberRepository.save(member);
             }
 

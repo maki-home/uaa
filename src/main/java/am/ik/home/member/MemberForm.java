@@ -29,6 +29,5 @@ public class MemberForm implements Serializable {
     @Size(max = 255)
     @Email
     private String email;
-    @NotEmpty
     private List<MemberRole> roles;
 }
