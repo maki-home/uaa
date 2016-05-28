@@ -1,5 +1,6 @@
 package am.ik.home;
 
+import am.ik.home.app.*;
 import am.ik.home.member.Member;
 import am.ik.home.member.MemberRepository;
 import am.ik.home.member.MemberRole;
@@ -36,6 +37,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
@@ -74,7 +76,7 @@ public class UaaApplication {
 
     @Profile("!cloud")
     @Bean
-    InitializingBean init(MemberRepository memberRepository) {
+    InitializingBean init(MemberRepository memberRepository, AppRepository appRepository) {
         return () -> {
             if (!memberRepository.findByEmail("maki@example.com").isPresent()) {
                 Member member = new Member();
@@ -94,8 +96,48 @@ public class UaaApplication {
                 member.setRoles(Collections.singletonList(MemberRole.USER));
                 memberRepository.save(member);
             }
-
-            System.out.println(memberRepository.countByRoles(MemberRole.ADMIN));
+            if (!appRepository.findByAppName("Moneygr").isPresent()) {
+                appRepository.save(App.builder()
+                        .appName("Moneygr")
+                        .appUrl("http://localhost:18080")
+                        .appSecret("acmeSecret")
+                        .grantTypes(Arrays.asList(AppGrantType.AUTHORIZATION_CODE, AppGrantType.PASSWORD, AppGrantType.REFRESH_TOKEN))
+                        .roles(Arrays.asList(AppRole.CLIENT, AppRole.TRUSTED_CLIENT))
+                        .scopes(Arrays.asList(AppScope.READ, AppScope.WRITE))
+                        .autoApproveScopes(Arrays.asList(AppScope.values()))
+                        .accessTokenValiditySeconds((int) TimeUnit.MINUTES.toSeconds(30))
+                        .refreshTokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(3))
+                        .redirectUrls(Collections.singletonList("http://localhost:18080/login"))
+                        .build());
+            }
+            if (!appRepository.findByAppName("Guest App").isPresent()) {
+                appRepository.save(App.builder()
+                        .appName("Guest App")
+                        .appUrl("http://guest.example.com")
+                        .appSecret("guest")
+                        .grantTypes(Arrays.asList(AppGrantType.AUTHORIZATION_CODE, AppGrantType.IMPLICIT, AppGrantType.PASSWORD, AppGrantType.REFRESH_TOKEN))
+                        .roles(Arrays.asList(AppRole.CLIENT))
+                        .scopes(Arrays.asList(AppScope.READ))
+                        .autoApproveScopes(Arrays.asList(AppScope.values()))
+                        .accessTokenValiditySeconds((int) TimeUnit.MINUTES.toSeconds(3))
+                        .refreshTokenValiditySeconds((int) TimeUnit.HOURS.toSeconds(3))
+                        .redirectUrls(Collections.singletonList("http://guest.example.com/login"))
+                        .build());
+            }
+            if (!appRepository.findByAppName("3rd App").isPresent()) {
+                appRepository.save(App.builder()
+                        .appName("3rd App")
+                        .appUrl("http://3rd.example.com")
+                        .appSecret("3rd")
+                        .grantTypes(Arrays.asList(AppGrantType.AUTHORIZATION_CODE, AppGrantType.IMPLICIT, AppGrantType.REFRESH_TOKEN))
+                        .roles(Arrays.asList(AppRole.CLIENT))
+                        .scopes(Arrays.asList(AppScope.READ, AppScope.WRITE))
+                        .autoApproveScopes(Arrays.asList(AppScope.values()))
+                        .accessTokenValiditySeconds((int) TimeUnit.MINUTES.toSeconds(3))
+                        .refreshTokenValiditySeconds((int) TimeUnit.HOURS.toSeconds(3))
+                        .redirectUrls(Collections.singletonList("http://3rd.example.com/login"))
+                        .build());
+            }
         };
     }
 
@@ -139,44 +181,17 @@ public class UaaApplication {
         @Autowired
         AuthenticationManager authenticationManager;
         @Autowired
+        AppRepository appRepository;
+        @Autowired
         TokenEnhancer tokenEnhancer;
         @Autowired
         AuthorizationServerProperties props;
 
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-            clients.inMemory()
-                    .withClient("acme")
-                    .secret("acmesecret")
-                    .authorizedGrantTypes("password", "authorization_code", "refresh_token", "implicit")
-                    .authorities("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT")
-                    .scopes("read", "write", "trust")
-                    .resourceIds("oauth2-resource")
-                    .accessTokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(1))
-                    .autoApprove(true)
-                    .and()
-                    .withClient("guest")
-                    .secret("guest")
-                    .authorizedGrantTypes("password", "authorization_code", "refresh_token", "implicit")
-                    .authorities("ROLE_CLIENT")
-                    .scopes("read")
-                    .resourceIds("oauth2-resource")
-                    .accessTokenValiditySeconds((int) TimeUnit.HOURS.toSeconds(1))
-                    .autoApprove(true)
-                    .and()
-                    .withClient("3rd")
-                    .secret("3rd")
-                    .authorizedGrantTypes("authorization_code", "refresh_token", "implicit")
-                    .authorities("ROLE_CLIENT")
-                    .scopes("read")
-                    .resourceIds("oauth2-resource")
-                    .accessTokenValiditySeconds((int) TimeUnit.HOURS.toSeconds(1))
-                    .autoApprove(true)
-                    .and()
-                    .withClient("checker")
-                    .secret("checker")
-                    .authorities("ROLE_TRUSTED_CLIENT")
-                    .autoApprove(true);
+            clients.withClientDetails(clientId -> appRepository.findByAppId(clientId)
+                    .map(AppClientDetails::new)
+                    .orElseThrow(() -> new ClientRegistrationException("The given client is invalid")));
         }
 
         @Override

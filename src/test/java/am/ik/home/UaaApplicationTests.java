@@ -5,9 +5,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.RequestEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -26,6 +29,15 @@ public class UaaApplicationTests {
     @Value("${SERVER_URI:http://localhost:${local.server.port}}/uaa")
     String uri;
     RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+
+    String getBasic(String appName) {
+        String ret = jdbcTemplate.queryForObject("SELECT concat(app_id, ':', app_secret) FROM app WHERE app_name = ?", String.class, appName);
+        System.out.println(ret);
+        return Base64.getEncoder().encodeToString(ret.getBytes());
+    }
+
 
     @Test
     public void testTrustedClient() throws IOException {
@@ -35,7 +47,7 @@ public class UaaApplicationTests {
                 .queryParam("username", "maki@example.com")
                 .queryParam("password", "demo")
                 .build().toUri())
-                .header("Authorization", "Basic " + Base64.getEncoder().encodeToString("acme:acmesecret".getBytes()))
+                .header("Authorization", "Basic " + getBasic("Moneygr"))
                 .build();
 
         // issue token
@@ -43,7 +55,7 @@ public class UaaApplicationTests {
 
         assertThat(res1.get("access_token").asText()).isNotEmpty();
         assertThat(res1.get("refresh_token").asText()).isNotEmpty();
-        assertThat(res1.get("scope").asText()).isEqualTo("read write trust");
+        assertThat(res1.get("scope").asText()).isEqualTo("read write");
         assertThat(res1.get("expires_in").asLong()).isLessThan(TimeUnit.DAYS.toSeconds(1));
         assertThat(res1.get("family_name").asText()).isEqualTo("Maki");
         assertThat(res1.get("given_name").asText()).isEqualTo("Toshiaki");
@@ -59,7 +71,7 @@ public class UaaApplicationTests {
                 .queryParam("username", "maki@example.com")
                 .queryParam("password", "demo")
                 .build().toUri())
-                .header("Authorization", "Basic " + Base64.getEncoder().encodeToString("guest:guest".getBytes()))
+                .header("Authorization", "Basic " + getBasic("Guest App"))
                 .build();
 
         // issue token
@@ -86,7 +98,7 @@ public class UaaApplicationTests {
                 .queryParam("username", "maki@example.com")
                 .queryParam("password", "demo")
                 .build().toUri())
-                .header("Authorization", "Basic " + Base64.getEncoder().encodeToString("3rd:3rd".getBytes()))
+                .header("Authorization", "Basic " + getBasic("3rd App"))
                 .build();
 
         thrown.expect(HttpClientErrorException.class);
@@ -104,7 +116,7 @@ public class UaaApplicationTests {
                 .queryParam("username", "maki@example.com")
                 .queryParam("password", "demo")
                 .build().toUri())
-                .header("Authorization", "Basic " + Base64.getEncoder().encodeToString("acme:acmesecret".getBytes()))
+                .header("Authorization", "Basic " + getBasic("Moneygr"))
                 .build();
 
         // issue token
@@ -134,7 +146,7 @@ public class UaaApplicationTests {
                 .queryParam("username", "maki@example.com")
                 .queryParam("password", "demo")
                 .build().toUri())
-                .header("Authorization", "Basic " + Base64.getEncoder().encodeToString("guest:guest".getBytes()))
+                .header("Authorization", "Basic " + getBasic("Guest App"))
                 .build();
 
         // issue token
@@ -163,7 +175,7 @@ public class UaaApplicationTests {
                 .queryParam("username", "maki@example.com")
                 .queryParam("password", "demo")
                 .build().toUri())
-                .header("Authorization", "Basic " + Base64.getEncoder().encodeToString("acme:acmesecret".getBytes()))
+                .header("Authorization", "Basic " + getBasic("Moneygr"))
                 .build();
 
         // issue token
