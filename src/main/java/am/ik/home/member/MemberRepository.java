@@ -16,6 +16,8 @@ public interface MemberRepository extends Repository<Member, String> {
     @Query("SELECT x FROM Member x WHERE x.memberId IN (:ids) ORDER BY x.familyName, x.givenName")
     List<Member> findByIds(@Param("ids") List<String> ids);
 
+    List<Member> findAll();
+
     @RestResource(exported = false)
     Member save(Member member);
 

@@ -16,13 +16,6 @@
     <div class="uk-width-8-10">
         <h1><a th:href="@{/}">Maki Home UAA</a></h1>
 
-        <div class="uk-alert uk-alert-success" th:if="${updated}">
-            Updated successfully. To sync information,
-            <form th:action="@{/logout}" method="post">
-                <button class="uk-button uk-button-mini">Logout</button>
-            </form>
-            is required.
-        </div>
         <form class="uk-form uk-form-stacked" th:action="@{/}" th:object="${memberForm}" method="post">
 
             <div class="uk-form-row">
@@ -85,22 +78,8 @@
                           class="uk-text-danger">error!</span>
                 </div>
             </div>
-            <div class="uk-form-row" sec:authorize="${hasRole('ADMIN')}">
-                <span class="uk-form-label">Role</span>
-                <div class="uk-form-controls">
-                    <label><input name="roles" type="checkbox" value="USER"
-                                  th:checked="${memberForm.roles != null and memberForm.roles.contains(T(am.ik.home.member.MemberRole).USER)}"/>
-                        USER</label>
-                    <label><input name="roles" type="checkbox" value="ADMIN"
-                                  th:checked="${memberForm.roles != null and memberForm.roles.contains(T(am.ik.home.member.MemberRole).ADMIN)}"/>
-                        ADMIN</label>
-                    <span th:if="${#fields.hasErrors('roles')}"
-                          th:errors="*{roles}"
-                          class="uk-text-danger">error!</span>
-                </div>
-            </div>
             <div class="uk-form-row">
-                <input type="hidden" name="edit"/>
+                <input type="hidden" name="new"/>
                 <button class="uk-width-1-1 uk-button uk-button-primary uk-button-large"><i class="uk-icon-edit"></i>
                     Edit
                 </button>
