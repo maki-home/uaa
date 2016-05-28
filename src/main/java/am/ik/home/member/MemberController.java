@@ -9,6 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
@@ -17,8 +18,7 @@ public class MemberController {
     private final MemberRepository memberRepository;
 
     @GetMapping("/")
-    String home(@AuthenticationPrincipal(expression = "member") Member member, Model model) {
-        model.addAttribute("member", member);
+    String home() {
         return "home";
     }
 
@@ -34,7 +34,8 @@ public class MemberController {
 
     @PostMapping(path = "/", params = "edit")
     String edit(@AuthenticationPrincipal(expression = "member.memberId") String memberId,
-                @Validated MemberForm form, BindingResult result, Model model) {
+                @Validated MemberForm form, BindingResult result, Model model,
+                RedirectAttributes attributes) {
         if (result.hasErrors()) {
             model.addAttribute("memberForm", form);
             return "edit";
@@ -43,6 +44,7 @@ public class MemberController {
         BeanUtils.copyProperties(form, updated);
         updated.setMemberId(memberId);
         memberService.save(updated, form.getRawPassword());
+        attributes.addFlashAttribute("updated", true);
         return "redirect:/?edit";
     }
 

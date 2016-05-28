@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -8,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/2.26.3/css/uikit.gradient.min.css"/>
 </head>
 
-<body>
+<body th:with="member=${#authentication.principal.member}">
 
 <div class="uk-grid">
     <div class="uk-width-1-10"></div>
@@ -16,6 +17,7 @@
         <h1><a th:href="@{/}">Maki Home UAA</a></h1>
         <a th:href="@{${@environment.getProperty('moneygr.url', 'http://localhost:18080')}}">Go back to Moneygr</a>
 
+        <span th:text="${user}"></span>
         <table class="uk-table uk-table-striped">
             <tr>
                 <th>Name</th>

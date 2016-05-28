@@ -14,11 +14,11 @@
     <div class="uk-vertical-align-middle">
         <h1>Maki Home SSO Login Form</h1>
 
-        <p class="uk-text-danger" th:if="${param.error}">
+        <p class="uk-alert uk-alert-danger" th:if="${param.error}">
             Login failed ...
         </p>
 
-        <p class="uk-text-success" th:if="${param.logout}">
+        <p class="uk-alert uk-alert-success" th:if="${param.logout}">
             Logout succeeded.
         </p>
 
