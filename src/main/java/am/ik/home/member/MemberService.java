@@ -23,4 +23,12 @@ public class MemberService {
         }
         return member;
     }
+
+    @PreAuthorize("hasRole('ADMIN') or #memberId == principal.member.memberId")
+    public void delete(@P("memberId") String memberId) {
+        memberRepository.delete(memberId);
+        if (memberRepository.countByRoles(MemberRole.ADMIN) == 0) {
+            throw new IllegalStateException("At least one ADMIN required!");
+        }
+    }
 }
