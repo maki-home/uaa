@@ -1,5 +1,7 @@
 package am.ik.home;
 
+import am.ik.home.member.Member;
+import am.ik.home.member.MemberUserDetails;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;

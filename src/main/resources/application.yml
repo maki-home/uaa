@@ -7,7 +7,7 @@ spring.data.rest.base-path: /api
 security.oauth2.authorization.token-key-access: permitAll()
 logging.level.org.hibernate.SQL: DEBUG
 logging.level.org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-logging.level.org.springframework.security: DEBUG
+#logging.level.org.springframework.security: DEBUG
 
 # openssl genrsa -out private.pem 2048
 # openssl rsa -in private.pem -outform PEM -pubout -out public.pem
