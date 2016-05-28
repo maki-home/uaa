@@ -1,5 +1,7 @@
 package am.ik.home;
 
+import am.ik.home.member.Member;
+import am.ik.home.member.MemberRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;

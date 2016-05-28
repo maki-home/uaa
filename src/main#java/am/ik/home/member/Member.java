@@ -1,4 +1,4 @@
-package am.ik.home;
+package am.ik.home.member;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -9,6 +9,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Data
@@ -27,6 +28,10 @@ public class Member implements Serializable {
 
     @JsonIgnore
     private String password;
-
+    @Column(unique = true)
     private String email;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private List<MemberRole> roles;
 }

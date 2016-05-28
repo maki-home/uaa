@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Maki Home UAA</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/2.26.3/css/uikit.gradient.min.css"/>
 </head>
@@ -11,9 +11,9 @@
 <body>
 
 <div class="uk-grid">
-    <div class="uk-width-1-5"></div>
-    <div class="uk-width-3-5">
-        <h1>Maki Home UAA</h1>
+    <div class="uk-width-1-10"></div>
+    <div class="uk-width-8-10">
+        <h1><a th:href="@{/}">Maki Home UAA</a></h1>
         <a th:href="@{${@environment.getProperty('moneygr.url', 'http://localhost:18080')}}">Go back to Moneygr</a>
 
         <table class="uk-table uk-table-striped">
@@ -26,12 +26,13 @@
                 <td><span th:text="${member.email}"></span></td>
             </tr>
         </table>
-
+        <a class="uk-button uk-button-primary" th:href="@{/(edit=)}">Edit</a>
+        <hr/>
         <form th:action="@{/logout}" method="post">
             <button class="uk-button">Logout</button>
         </form>
     </div>
-    <div class="uk-width-1-5"></div>
+    <div class="uk-width-1-10"></div>
 </div>
 </body>
 </html>

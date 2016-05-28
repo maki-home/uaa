@@ -1,5 +1,9 @@
 package am.ik.home;
 
+import am.ik.home.member.Member;
+import am.ik.home.member.MemberRepository;
+import am.ik.home.member.MemberRole;
+import am.ik.home.member.MemberUserDetails;
 import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
 import org.apache.catalina.filters.RequestDumperFilter;
 import org.springframework.beans.factory.InitializingBean;
@@ -17,11 +21,14 @@ import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -53,21 +60,32 @@ public class UaaApplication {
                 .orElseThrow(() -> new UsernameNotFoundException("not found"));
     }
 
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new Pbkdf2PasswordEncoder();
+    }
+
     @Profile("!cloud")
     @Bean
     RequestDumperFilter requestDumperFilter() {
         return new RequestDumperFilter();
     }
 
+    @Profile("!cloud")
     @Bean
     InitializingBean init(MemberRepository memberRepository) {
         return () -> {
-            Member member = new Member();
-            member.setEmail("maki@example.com");
-            member.setFamilyName("Maki");
-            member.setGivenName("Toshiaki");
-            member.setPassword("demo");
-            memberRepository.saveAndFlush(member);
+            if (!memberRepository.findByEmail("maki@example.com").isPresent()) {
+                Member member = new Member();
+                member.setEmail("maki@example.com");
+                member.setFamilyName("Maki");
+                member.setGivenName("Toshiaki");
+                member.setPassword(passwordEncoder().encode("demo"));
+                member.setRoles(Arrays.asList(MemberRole.USER, MemberRole.ADMIN));
+                memberRepository.save(member);
+            }
+
+            System.out.println(memberRepository.countByRoles(MemberRole.ADMIN));
         };
     }
 
@@ -86,6 +104,7 @@ public class UaaApplication {
     }
 
     @Configuration
+    @EnableGlobalMethodSecurity(prePostEnabled = true)
     @Order(-20)
     static class LoginConfig extends WebSecurityConfigurerAdapter {
         @Override

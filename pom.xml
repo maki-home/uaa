@@ -78,6 +78,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>org.terasoluna.gfw</groupId>
+            <artifactId>terasoluna-gfw-validator</artifactId>
+            <version>5.1.0.RELEASE</version>
+        </dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
@@ -115,6 +120,16 @@
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
+		</repository>
+		<repository>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>terasoluna-gfw-releases</id>
+			<url>http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases/</url>
 		</repository>
 	</repositories>
 	<pluginRepositories>
