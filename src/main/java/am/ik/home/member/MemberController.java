@@ -85,7 +85,7 @@ public class MemberController {
         return "redirect:/?edit";
     }
 
-    @DeleteMapping
+    @DeleteMapping(path = "/")
     String delete(@RequestParam("memberId") String memberId) {
         memberService.delete(memberId);
         return "redirect:/";

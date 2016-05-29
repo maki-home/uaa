@@ -54,7 +54,9 @@ public class UaaApplicationTests {
 
         assertThat(res1.get("access_token").asText()).isNotEmpty();
         assertThat(res1.get("refresh_token").asText()).isNotEmpty();
-        assertThat(res1.get("scope").asText()).isEqualTo("read write");
+        assertThat(res1.get("scope").asText().split(" ")).hasSize(2);
+        assertThat(res1.get("scope").asText().split(" ")).contains("read");
+        assertThat(res1.get("scope").asText().split(" ")).contains("write");
         assertThat(res1.get("expires_in").asLong()).isLessThan(TimeUnit.DAYS.toSeconds(1));
         assertThat(res1.get("family_name").asText()).isEqualTo("Maki");
         assertThat(res1.get("given_name").asText()).isEqualTo("Toshiaki");
