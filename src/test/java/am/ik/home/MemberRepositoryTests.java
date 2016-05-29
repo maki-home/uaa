@@ -32,7 +32,8 @@ public class MemberRepositoryTests {
         Member member = Member.builder()
                 .email("foo@example.com")
                 .familyName("Yamada")
-                .givenName("Taro").build();
+                .givenName("Taro")
+                .password("foo").build();
         entityManager.persist(member);
         Optional<Member> m = memberRepository.findByEmail("foo@example.com");
         assertThat(m.isPresent()).isTrue();
@@ -45,11 +46,13 @@ public class MemberRepositoryTests {
         Member member1 = Member.builder()
                 .email("foo@example.com")
                 .familyName("Yamada")
-                .givenName("Taro").build();
+                .givenName("Taro")
+                .password("foo").build();
         Member member2 = Member.builder()
                 .email("bar@example.com")
                 .familyName("Yamada")
-                .givenName("Hanako").build();
+                .givenName("Hanako")
+                .password("foo").build();
         entityManager.persist(member1);
         entityManager.persist(member2);
         List<Member> m = memberRepository.findByIds(Arrays.asList(member1.getMemberId(), member2.getMemberId()));
