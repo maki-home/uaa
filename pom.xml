@@ -93,6 +93,10 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
@@ -126,14 +130,12 @@
 			</snapshots>
 		</repository>
 		<repository>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
+			<id>terasoluna-gfw-releases</id>
+			<name>TERASOLUNA</name>
+			<url>http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases/</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
-			<id>terasoluna-gfw-releases</id>
-			<url>http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases/</url>
 		</repository>
 	</repositories>
 	<pluginRepositories>

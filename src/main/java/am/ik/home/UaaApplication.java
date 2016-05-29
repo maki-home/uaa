@@ -3,11 +3,9 @@ package am.ik.home;
 import am.ik.home.app.*;
 import am.ik.home.member.Member;
 import am.ik.home.member.MemberRepository;
-import am.ik.home.member.MemberRole;
 import am.ik.home.member.MemberUserDetails;
 import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
 import org.apache.catalina.filters.RequestDumperFilter;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -43,10 +41,6 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 public class UaaApplication {
@@ -76,73 +70,6 @@ public class UaaApplication {
         return new RequestDumperFilter();
     }
 
-    @Profile("!cloud")
-    @Bean
-    InitializingBean init(MemberRepository memberRepository, AppRepository appRepository) {
-        return () -> {
-            if (!memberRepository.findByEmail("maki@example.com").isPresent()) {
-                Member member = new Member();
-                member.setEmail("maki@example.com");
-                member.setFamilyName("Maki");
-                member.setGivenName("Toshiaki");
-                member.setPassword(passwordEncoder().encode("demo"));
-                member.setRoles(Arrays.asList(MemberRole.USER, MemberRole.ADMIN));
-                memberRepository.save(member);
-            }
-            if (!memberRepository.findByEmail("demo@example.com").isPresent()) {
-                Member member = new Member();
-                member.setEmail("demo@example.com");
-                member.setFamilyName("Demo");
-                member.setGivenName("Taro");
-                member.setPassword(passwordEncoder().encode("demo"));
-                member.setRoles(Collections.singletonList(MemberRole.USER));
-                memberRepository.save(member);
-            }
-            if (!appRepository.findByAppName("Moneygr").isPresent()) {
-                appRepository.save(App.builder()
-                        .appName("Moneygr")
-                        .appUrl("http://localhost:18080")
-                        .appSecret(UUID.randomUUID().toString())
-                        .grantTypes(new HashSet<>(Arrays.asList(AppGrantType.AUTHORIZATION_CODE, AppGrantType.PASSWORD, AppGrantType.REFRESH_TOKEN)))
-                        .roles(new HashSet<>(Arrays.asList(AppRole.CLIENT, AppRole.TRUSTED_CLIENT)))
-                        .scopes(new HashSet<>(Arrays.asList(AppScope.READ, AppScope.WRITE)))
-                        .autoApproveScopes(new HashSet<>(Arrays.asList(AppScope.values())))
-                        .accessTokenValiditySeconds((int) TimeUnit.MINUTES.toSeconds(30))
-                        .refreshTokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(3))
-                        .redirectUrls(Collections.singleton("http://localhost:18080/login"))
-                        .build());
-            }
-            if (!appRepository.findByAppName("Guest App").isPresent()) {
-                appRepository.save(App.builder()
-                        .appName("Guest App")
-                        .appUrl("http://guest.example.com")
-                        .appSecret(UUID.randomUUID().toString())
-                        .grantTypes(new HashSet<>(Arrays.asList(AppGrantType.AUTHORIZATION_CODE, AppGrantType.IMPLICIT, AppGrantType.PASSWORD, AppGrantType.REFRESH_TOKEN)))
-                        .roles(new HashSet<>(Arrays.asList(AppRole.CLIENT)))
-                        .scopes(new HashSet<>(Arrays.asList(AppScope.READ)))
-                        .autoApproveScopes(new HashSet<>(Arrays.asList(AppScope.values())))
-                        .accessTokenValiditySeconds((int) TimeUnit.MINUTES.toSeconds(3))
-                        .refreshTokenValiditySeconds((int) TimeUnit.HOURS.toSeconds(3))
-                        .redirectUrls(Collections.singleton("http://guest.example.com/login"))
-                        .build());
-            }
-            if (!appRepository.findByAppName("3rd App").isPresent()) {
-                appRepository.save(App.builder()
-                        .appName("3rd App")
-                        .appUrl("http://3rd.example.com")
-                        .appSecret(UUID.randomUUID().toString())
-                        .grantTypes(new HashSet<>(Arrays.asList(AppGrantType.AUTHORIZATION_CODE, AppGrantType.IMPLICIT, AppGrantType.REFRESH_TOKEN)))
-                        .roles(new HashSet<>(Arrays.asList(AppRole.CLIENT)))
-                        .scopes(new HashSet<>(Arrays.asList(AppScope.READ, AppScope.WRITE)))
-                        .autoApproveScopes(new HashSet<>(Arrays.asList(AppScope.values())))
-                        .accessTokenValiditySeconds((int) TimeUnit.MINUTES.toSeconds(3))
-                        .refreshTokenValiditySeconds((int) TimeUnit.HOURS.toSeconds(3))
-                        .redirectUrls(Collections.singleton("http://3rd.example.com/login"))
-                        .build());
-            }
-        };
-    }
-
     @Bean
     JSR353Module jsr353Module() {
         return new JSR353Module();
@@ -167,7 +94,7 @@ public class UaaApplication {
                     .formLogin().loginPage("/login").permitAll()
                     .and()
                     .requestMatchers()
-                    .antMatchers("/", "/apps","/login", "/oauth/authorize", "/oauth/confirm_access")
+                    .antMatchers("/", "/apps", "/login", "/oauth/authorize", "/oauth/confirm_access")
                     .and()
                     .authorizeRequests()
                     .antMatchers("/login**").permitAll()
