@@ -12,6 +12,8 @@ $ ./mvnw clean package
 $ java -jar target/uaa-0.0.1-SNAPSHOT.jar
 ```
 
+Go http://localhost:9999/uaa
+
 Initial `ADMIN` user is `maki@example.com` / `demo`.
 
 By default, MySQL and following properties are used. 
