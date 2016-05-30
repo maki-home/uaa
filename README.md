@@ -28,7 +28,7 @@ You can change like:
 $ java -jar target/uaa-0.0.1-SNAPSHOT.jar --spring.datasource.url=jdbc:mysql://localhost:3306/foo --spring.datasource.username=foo --spring.datasource.password=foo
 ```
 
-## How to `cf push`
+## How to deploy to Cloud Foundry
 
 No need to configure properties.
 
