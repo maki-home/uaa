@@ -1,4 +1,4 @@
-# Simple UAA (User Authentication and Authorization)
+# Simple UAA (User Account and Authentication)
 
 ### Build
 
