@@ -11,3 +11,4 @@ applications:
     host: home
     services:
     - uaa-db
+    - logstash
