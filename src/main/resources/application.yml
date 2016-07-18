@@ -1,12 +1,12 @@
 server.port: 9999
 server.context-path: /uaa
 spring.jpa.hibernate.ddl-auto: none
-spring.jpa.properties.hibernate.format_sql: true
+#spring.jpa.properties.hibernate.format_sql: true
 spring.datasource.sql-script-encoding: UTF-8
 spring.data.rest.base-path: /api
 security.oauth2.authorization.token-key-access: permitAll()
-logging.level.org.hibernate.SQL: DEBUG
-logging.level.org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+#logging.level.org.hibernate.SQL: DEBUG
+#logging.level.org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 spring.datasource.url: jdbc:mysql://localhost:3306/uaa
 spring.datasource.username: root
 spring.datasource.password:
