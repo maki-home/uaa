@@ -1,6 +1,7 @@
 server.port: 9999
 server.context-path: /uaa
 spring.jpa.hibernate.ddl-auto: none
+server.session.timeout: 86400
 #spring.jpa.properties.hibernate.format_sql: true
 spring.datasource.sql-script-encoding: UTF-8
 spring.data.rest.base-path: /api
