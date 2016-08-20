@@ -21,7 +21,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
-		<!-- BCryptPassword is broken? -->
+		<!-- https://github.com/spring-projects/spring-security/issues/3930 is not applied yet -->
 		<spring-security.version>4.1.0.RELEASE</spring-security.version>
 	</properties>
 
