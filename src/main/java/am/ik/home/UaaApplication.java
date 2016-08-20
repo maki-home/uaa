@@ -39,8 +39,12 @@ import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
+import javax.sql.DataSource;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 public class UaaApplication {
@@ -88,18 +92,38 @@ public class UaaApplication {
     @EnableGlobalMethodSecurity(prePostEnabled = true)
     @Order(-20)
     static class LoginConfig extends WebSecurityConfigurerAdapter {
+
+        @Autowired
+        DataSource dataSource;
+        @Autowired
+        UserDetailsService userDetailsService;
+
+        @Bean
+        PersistentTokenRepository persistentTokenRepository() {
+            JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
+            tokenRepository.setDataSource(dataSource);
+            return tokenRepository;
+        }
+
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
                     .formLogin().loginPage("/login").permitAll()
                     .and()
                     .requestMatchers()
-                    .antMatchers("/", "/apps", "/login", "/oauth/authorize", "/oauth/confirm_access")
+                    .antMatchers("/", "/apps", "/login", "/logout", "/oauth/authorize", "/oauth/confirm_access")
                     .and()
                     .authorizeRequests()
                     .antMatchers("/login**").permitAll()
                     .antMatchers("/apps**").access("hasRole('ADMIN')")
                     .anyRequest().authenticated()
+                    .and()
+                    .rememberMe()
+                    .tokenRepository(persistentTokenRepository())
+                    .userDetailsService(userDetailsService)
+                    .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(7))
+                    .and()
+                    .logout().deleteCookies("JSESSIONID", "remember-me").permitAll()
                     .and().csrf().ignoringAntMatchers("/oauth/**");
         }
     }
