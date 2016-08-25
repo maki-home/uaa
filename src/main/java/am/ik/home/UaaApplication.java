@@ -4,7 +4,6 @@ import am.ik.home.app.*;
 import am.ik.home.member.Member;
 import am.ik.home.member.MemberRepository;
 import am.ik.home.member.MemberUserDetails;
-import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
 import org.apache.catalina.filters.RequestDumperFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -73,12 +72,6 @@ public class UaaApplication {
     RequestDumperFilter requestDumperFilter() {
         return new RequestDumperFilter();
     }
-
-    @Bean
-    JSR353Module jsr353Module() {
-        return new JSR353Module();
-    }
-
 
     @Configuration
     static class RestMvcConfig extends RepositoryRestConfigurerAdapter {

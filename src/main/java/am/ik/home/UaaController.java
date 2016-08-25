@@ -7,8 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.json.Json;
-import javax.json.JsonObject;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -21,13 +21,14 @@ public class UaaController {
 
     @ResponseBody
     @GetMapping(path = "/user")
-    JsonObject user(@AuthenticationPrincipal(expression = "member") Member member) {
-        return Json.createObjectBuilder()
-                .add("id", member.getMemberId())
-                .add("name", Json.createObjectBuilder()
-                        .add("givenName", member.getGivenName())
-                        .add("familyName", member.getFamilyName()))
-                .add("email", member.getEmail())
-                .build();
+    Object user(@AuthenticationPrincipal(expression = "member") Member member) {
+        Map<String, Object> user = new LinkedHashMap<>();
+        user.put("id", member.getMemberId());
+        user.put("email", member.getEmail());
+        Map<String, Object> name = new LinkedHashMap<>();
+        name.put("givenName", member.getGivenName());
+        name.put("familyName", member.getFamilyName());
+        user.put("name", name);
+        return user;
     }
 }
