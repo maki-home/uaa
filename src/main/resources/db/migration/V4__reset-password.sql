@@ -1,0 +1,3 @@
+TRUNCATE TABLE persistent_logins;
+UPDATE member
+SET password = 'b9fe67bb31cb57a37b719cd9ad7742e9c435cd4fe6a3842d4391e28a685fdd24c230c58dbdbb590a';
