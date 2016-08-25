@@ -17,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -197,4 +198,80 @@ public class UaaApplicationTests {
         assertThat(res3.get("_embedded").get("members").get(0).get("familyName").asText()).isEqualTo("Maki");
         assertThat(res3.get("_embedded").get("members").get(0).get("email").asText()).isEqualTo("maki@example.com");
     }
+
+	@Test
+	public void testUserWithOpenIdScope() throws Exception {
+		String testId = UUID.randomUUID().toString();
+		int insertedApp = jdbcTemplate
+				.update("INSERT INTO app (access_token_validity_seconds, app_name, app_secret, app_url, refresh_token_validity_seconds, app_id)\n"
+						+ "VALUES (180, 'OpenIdApp', '" + testId
+						+ "', 'https://openid.example.com', 10800, '" + testId + "');");
+		assertThat(insertedApp).isEqualTo(1);
+		int insertedGrantType = jdbcTemplate
+				.update("INSERT INTO app_grant_types (app_app_id, grant_types) VALUES ('"
+						+ testId + "', 'PASSWORD');");
+		assertThat(insertedGrantType).isEqualTo(1);
+		int insertedScope = jdbcTemplate
+				.update("INSERT INTO app_scopes (app_app_id, scopes) VALUES ('" + testId
+						+ "', 'OPENID');");
+		assertThat(insertedScope).isEqualTo(1);
+
+		RequestEntity<?> req1 = RequestEntity
+				.post(UriComponentsBuilder.fromUriString(uri)
+						.pathSegment("oauth", "token")
+						.queryParam("grant_type", "password")
+						.queryParam("username", "maki@example.com")
+						.queryParam("password", "demo").build().toUri())
+				.header("Authorization", "Basic " + getBasic("OpenIdApp")).build();
+
+		// issue token
+		JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
+
+		String accessToken = res1.get("access_token").asText();
+
+		// get user
+		RequestEntity<?> req2 = RequestEntity
+				.get(UriComponentsBuilder.fromUriString(uri).pathSegment("user").build()
+						.toUri())
+				.header("Authorization", "Bearer " + accessToken).build();
+		JsonNode res2 = restTemplate.exchange(req2, JsonNode.class).getBody();
+        assertThat(res2.get("id").asText()).isEqualTo("00000000-0000-0000-0000-000000000000");
+        assertThat(res2.get("email").asText()).isEqualTo("maki@example.com");
+        assertThat(res2.get("name").get("givenName").asText()).isEqualTo("Toshiaki");
+        assertThat(res2.get("name").get("familyName").asText()).isEqualTo("Maki");
+
+		int deletedScope = jdbcTemplate
+				.update("DELETE FROM app_scopes WHERE app_app_id = ?", testId);
+		assertThat(deletedScope).isEqualTo(1);
+		int deletedGrantType = jdbcTemplate
+				.update("DELETE FROM app_grant_types WHERE app_app_id = ?", testId);
+		assertThat(deletedGrantType).isEqualTo(1);
+		int deletedApp = jdbcTemplate.update("DELETE FROM app WHERE app_id = ?", testId);
+		assertThat(deletedApp).isEqualTo(1);
+	}
+
+	@Test
+	public void testUserWithoutOpenIdScope() throws Exception {
+		RequestEntity<?> req1 = RequestEntity
+				.post(UriComponentsBuilder.fromUriString(uri)
+						.pathSegment("oauth", "token")
+						.queryParam("grant_type", "password")
+						.queryParam("username", "maki@example.com")
+						.queryParam("password", "demo").build().toUri())
+				.header("Authorization", "Basic " + getBasic("Moneygr")).build();
+
+		// issue token
+		JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
+
+		String accessToken = res1.get("access_token").asText();
+
+		// get user
+		thrown.expect(HttpClientErrorException.class);
+
+		RequestEntity<?> req2 = RequestEntity
+				.get(UriComponentsBuilder.fromUriString(uri).pathSegment("user").build()
+						.toUri())
+				.header("Authorization", "Bearer " + accessToken).build();
+		restTemplate.exchange(req2, JsonNode.class).getBody();
+	}
 }

@@ -78,6 +78,8 @@ auth-server=http://localhost:9999/uaa
 security.oauth2.resource.user-info-uri=${auth-server}/user
 ```
 
+(This API requires `openid` scope)
+
 or
 
 ``` properties
@@ -103,7 +105,7 @@ security.oauth2.client.client-id=<You can see ClientId in Dashboard>
 security.oauth2.client.client-secret=<You can see ClientSecret in Dashboard>
 security.oauth2.client.access-token-uri=${auth-server}/oauth/token
 security.oauth2.client.user-authorization-uri=${auth-server}/oauth/authorize
-security.oauth2.client.scope=read,write
+security.oauth2.client.scope=read,write,openid
 security.oauth2.resource.user-info-uri=${auth-server}/user
 ```
 
