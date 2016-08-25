@@ -34,7 +34,6 @@ public class UaaApplicationTests {
 
     String getBasic(String appName) {
         String ret = jdbcTemplate.queryForObject("SELECT concat(app_id, ':', app_secret) FROM app WHERE app_name = ?", String.class, appName);
-        System.out.println(ret);
         return Base64.getEncoder().encodeToString(ret.getBytes());
     }
 
@@ -133,7 +132,6 @@ public class UaaApplicationTests {
                 .header("Authorization", "Bearer " + accessToken)
                 .build();
         JsonNode res2 = restTemplate.exchange(req2, JsonNode.class).getBody();
-        System.out.println(res2);
         assertThat(res2.get("memberId").asText()).matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
         assertThat(res2.get("givenName").asText()).isEqualTo("Toshiaki");
         assertThat(res2.get("familyName").asText()).isEqualTo("Maki");
