@@ -11,7 +11,6 @@ public class AppClientDetails extends BaseClientDetails {
     public AppClientDetails(App app) {
         super(app.getAppId(), "oauth2-resource",
                 app.getScopes().stream()
-                        .map(Enum::name)
                         .distinct()
                         .map(String::toLowerCase).collect(Collectors.joining(",")),
                 app.getGrantTypes().stream()
@@ -31,7 +30,6 @@ public class AppClientDetails extends BaseClientDetails {
         setAccessTokenValiditySeconds(app.getAccessTokenValiditySeconds());
         setRefreshTokenValiditySeconds(app.getRefreshTokenValiditySeconds());
         setAutoApproveScopes(app.getAutoApproveScopes().stream()
-                .map(Enum::name)
                 .map(String::toLowerCase).collect(Collectors.toSet()));
         this.app = app;
     }

@@ -45,8 +45,7 @@ public class App implements Serializable {
     @NotEmpty
     private Set<AppGrantType> grantTypes;
     @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    private Set<AppScope> scopes;
+    private Set<String> scopes;
     @ElementCollection(fetch = FetchType.EAGER)
     @NotEmpty
     private Set<String> redirectUrls;
@@ -59,7 +58,6 @@ public class App implements Serializable {
     @NotNull
     private Integer refreshTokenValiditySeconds;
     @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    private Set<AppScope> autoApproveScopes;
+    private Set<String> autoApproveScopes;
 
 }
