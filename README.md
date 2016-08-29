@@ -36,21 +36,21 @@ No need to configure properties.
 
 ``` console
 $ cf create-service p-mysql 100mb-dev uaa-db
-$ cf push -d <your domain>
+$ cf push
 ```
 
 ### Deploy to PCFDev
 
 ``` console
 $ cf create-service p-mysql 100mb-dev uaa-db
-$ cf push -d local.pcfdev.io
+$ cf push
 ```
 
 ### Deploy to PWS
 
 ``` console
 $ cf create-service cleardb spark uaa-db
-$ cf push -b java_buildpack -d cfapps.io
+$ cf push -b java_buildpack
 ```
 
 
