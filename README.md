@@ -43,7 +43,7 @@ $ cf push -d <your domain>
 
 ``` console
 $ cf create-service p-mysql 100mb-dev uaa-db
-$ cf push -b java_buildpack -d local.pcfdev.io
+$ cf push -d local.pcfdev.io
 ```
 
 ### Deploy to PWS
