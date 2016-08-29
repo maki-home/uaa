@@ -18,7 +18,13 @@ resources:
     type: docker-image
     source:
       repository: {{docker-repo}}
-
+  - name: dockerhub
+    type: docker-image
+    source:
+      repository: making/uaa
+      username: {{docker-username}}
+      password: {{docker-password}}
+      email: {{docker-email}}
 jobs:
   - name: uaa-unit
     plan:
@@ -72,3 +78,28 @@ jobs:
           manifest: uaa-repo/manifest-pez.yml
           path: output/app.jar
           current_app_name: home-uaa
+  - name: uaa-docker-push
+    plan:
+      - get: uaa-repo
+        trigger: true
+        passed: [ uaa-unit ]
+      - get: m2
+      - task: package
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: java
+              tag: 8-jdk-alpine
+          inputs:
+            - name: uaa-repo
+              path: repo
+            - name: m2
+          outputs:
+            - name: output
+          run:
+            path: sh
+            args:
+            - repo/ci/tasks/package.sh
+      - put: dockerhub
