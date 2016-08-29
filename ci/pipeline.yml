@@ -46,7 +46,7 @@ jobs:
   - name: uaa-deploy
     plan:
       - get: uaa-repo
-        # trigger: true
+        trigger: true
         passed: [ uaa-unit ]
       - get: m2
       - task: package
