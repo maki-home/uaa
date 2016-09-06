@@ -17,7 +17,7 @@ resources:
   - name: m2
     type: docker-image
     source:
-      repository: {{docker-repo}}
+      repository: making/home-m2
   - name: dockerhub
     type: docker-image
     source:
@@ -103,3 +103,6 @@ jobs:
             args:
             - repo/ci/tasks/package.sh
       - put: dockerhub
+        params:
+          build: .
+          dockerfile: uaa-repo/Dockerfile
