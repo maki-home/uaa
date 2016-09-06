@@ -15,6 +15,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Entity
 @Data
@@ -52,11 +53,11 @@ public class App implements Serializable {
     @Max(600000)
     @Min(0)
     @NotNull
-    private Integer accessTokenValiditySeconds;
+    private Integer accessTokenValiditySeconds = (int) TimeUnit.HOURS.toSeconds(3);
     @Max(600000)
     @Min(0)
     @NotNull
-    private Integer refreshTokenValiditySeconds;
+    private Integer refreshTokenValiditySeconds = (int) TimeUnit.HOURS.toSeconds(12);
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> autoApproveScopes;
 
