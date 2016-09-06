@@ -67,24 +67,32 @@
                 </div>
             </div>
             <div class="uk-form-row">
-                <label class="uk-form-label" th:for="roles">Roles (Comma separated)</label>
+                <label class="uk-form-label" th:for="roles">Roles</label>
                 <div class="uk-form-controls uk-grid">
                     <div class="uk-width-1-1">
-                        <input type="text" th:field="*{roles}" class="uk-width-1-1"
-                               th:classappend="${#fields.hasErrors('roles')}? 'uk-form-danger'"/>
+                        <!--/*/ <th:block th:each="r : ${T(am.ik.home.app.AppRole).values()}"> /*/-->
+                        <label th:inline="text">
+                            <input type="checkbox" th:field="*{roles}" th:value="${r}"
+                                   th:classappend="${#fields.hasErrors('roles')}? 'uk-form-danger'"/>[[${r}]]
+                        </label>
+                        <!--/*/ </th:block> /*/-->
                         <span th:if="${#fields.hasErrors('roles')}" th:errors="*{roles}"
                               class="uk-text-danger">error!</span>
                     </div>
                 </div>
             </div>
             <div class="uk-form-row">
-                <label class="uk-form-label" th:for="grantTypes">Grant Types (Comma separated)</label>
+                <label class="uk-form-label" th:for="grantTypes">Grant Types</label>
                 <div class="uk-form-controls uk-grid">
                     <div class="uk-width-1-1">
-                        <input type="text" th:field="*{grantTypes}" class="uk-width-1-1"
-                               th:classappend="${#fields.hasErrors('grantTypes')}? 'uk-form-danger'"/>
-                        <span th:if="${#fields.hasErrors('grantTypes')}" th:errors="*{grantTypes}"
-                              class="uk-text-danger">error!</span>
+                        <!--/*/ <th:block th:each="type : ${T(am.ik.home.app.AppGrantType).values()}"> /*/-->
+                        <label th:inline="text">
+                            <input type="checkbox" th:field="*{grantTypes}" th:value="${type}"
+                                   th:classappend="${#fields.hasErrors('grantTypes')}? 'uk-form-danger'"/>[[${type}]]
+                            <span th:if="${#fields.hasErrors('grantTypes')}" th:errors="*{grantTypes}"
+                                  class="uk-text-danger">error!</span>
+                        </label>
+                        <!--/*/ </th:block> /*/-->
                     </div>
                 </div>
             </div>
