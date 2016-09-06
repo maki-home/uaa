@@ -106,3 +106,4 @@ jobs:
         params:
           build: .
           dockerfile: uaa-repo/Dockerfile
+          tag_as_latest: true
