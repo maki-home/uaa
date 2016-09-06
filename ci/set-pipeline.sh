@@ -1,2 +1,2 @@
 #!/bin/sh
-echo y | fly -t home sp -p uaa -c pipeline.yml -l ../../credentials.yml
+echo y | fly -t home sp -p home-uaa -c pipeline.yml -l ../../credentials.yml
