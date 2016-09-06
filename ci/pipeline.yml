@@ -21,7 +21,7 @@ resources:
   - name: dockerhub
     type: docker-image
     source:
-      repository: making/uaa
+      repository: making/maki-uaa
       username: {{docker-username}}
       password: {{docker-password}}
       email: {{docker-email}}
