@@ -4,7 +4,7 @@ applications:
     memory: 1g
     instances: 1
     path: target/uaa-0.0.1-SNAPSHOT.jar
-    buildpack: https://github.com/cloudfoundry/java-buildpack.git#v3.8.1
+    buildpack: java_buildpack_offline
     host: home
     domains:
       - ik.am
