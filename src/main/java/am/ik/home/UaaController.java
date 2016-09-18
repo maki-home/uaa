@@ -20,7 +20,7 @@ public class UaaController {
     }
 
     @ResponseBody
-    @GetMapping(path = "/user")
+    @GetMapping(path = "/userinfo")
     Object user(@AuthenticationPrincipal(expression = "member") Member member) {
         Map<String, Object> user = new LinkedHashMap<>();
         user.put("id", member.getMemberId());

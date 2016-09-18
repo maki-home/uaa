@@ -231,7 +231,7 @@ public class UaaApplicationTests {
 
 		// get user
 		RequestEntity<?> req2 = RequestEntity
-				.get(UriComponentsBuilder.fromUriString(uri).pathSegment("user").build()
+				.get(UriComponentsBuilder.fromUriString(uri).pathSegment("userinfo").build()
 						.toUri())
 				.header("Authorization", "Bearer " + accessToken).build();
 		JsonNode res2 = restTemplate.exchange(req2, JsonNode.class).getBody();

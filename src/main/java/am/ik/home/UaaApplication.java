@@ -146,12 +146,15 @@ public class UaaApplication {
             TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
             tokenEnhancerChain.setTokenEnhancers(Arrays.asList(tokenEnhancer, jwtAccessTokenConverter()));
             endpoints.authenticationManager(authenticationManager)
-                    .tokenEnhancer(tokenEnhancerChain);
+                    .tokenEnhancer(tokenEnhancerChain)
+                    .pathMapping("/oauth/token_key", "/token_key")
+                    .pathMapping("/oauth/check_token", "/check_token");
         }
 
         @Override
         public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
             security.tokenKeyAccess(props.getTokenKeyAccess());
+            security.checkTokenAccess(props.getCheckTokenAccess());
         }
 
         @Bean
@@ -170,7 +173,7 @@ public class UaaApplication {
                     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                     .and()
                     .authorizeRequests()
-                    .mvcMatchers("/user").access("#oauth2.hasScope('openid')")
+                    .mvcMatchers("/user", "/userinfo").access("#oauth2.hasScope('openid')")
                     .antMatchers(HttpMethod.GET, "/api/**").access("#oauth2.clientHasRole('ROLE_TRUSTED_CLIENT') and #oauth2.hasScope('read')")
                     .antMatchers(HttpMethod.POST, "/api/**").access("#oauth2.clientHasRole('ROLE_TRUSTED_CLIENT') and #oauth2.hasScope('write')");
         }

@@ -6,6 +6,7 @@ server.session.timeout: 86400
 spring.datasource.sql-script-encoding: UTF-8
 spring.data.rest.base-path: /api
 security.oauth2.authorization.token-key-access: permitAll()
+security.oauth2.authorization.check-token-access: isAuthenticated()
 #logging.level.org.hibernate.SQL: DEBUG
 #logging.level.org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 spring.datasource.url: jdbc:mysql://localhost:3306/uaa

@@ -58,9 +58,9 @@ $ cf push -b java_buildpack
 
 * `/uaa/oauth/token`
 * `/uaa/oauth/authorize`
-* `/uaa/oauth/check_token`
-* `/uaa/oauth/token_key`
-* `/uaa/user`
+* `/uaa/check_token`
+* `/uaa/token_key`
+* `/uaa/userinfo`
 
 ### Example
 
@@ -75,7 +75,7 @@ Put `@EnableResourceServer` on you app and configure `application.properties` :
 
 ``` properties
 auth-server=http://localhost:9999/uaa
-security.oauth2.resource.user-info-uri=${auth-server}/user
+security.oauth2.resource.user-info-uri=${auth-server}/userinfo
 ```
 
 (This API requires `openid` scope)
@@ -84,14 +84,14 @@ or
 
 ``` properties
 auth-server=http://localhost:9999/uaa
-security.oauth2.resource.token-info-uri=${auth-server}/oauth/check_token
+security.oauth2.resource.token-info-uri=${auth-server}/check_token
 ```
 
 If you prefer using JWT,
 
 ``` properties
 auth-server=http://localhost:9999/uaa
-security.oauth2.resource.jwt.key-uri=${auth-server}/oauth/token_key
+security.oauth2.resource.jwt.key-uri=${auth-server}/token_key
 ```
 
 #### OAuth2 SSO with Spring Boot
@@ -106,7 +106,7 @@ security.oauth2.client.client-secret=<You can see ClientSecret in Dashboard>
 security.oauth2.client.access-token-uri=${auth-server}/oauth/token
 security.oauth2.client.user-authorization-uri=${auth-server}/oauth/authorize
 security.oauth2.client.scope=read,write,openid
-security.oauth2.resource.user-info-uri=${auth-server}/user
+security.oauth2.resource.user-info-uri=${auth-server}/userinfo
 ```
 
 If you prefer using JWT,
@@ -118,7 +118,7 @@ security.oauth2.client.client-secret=<You can see ClientSecret in Dashboard>
 security.oauth2.client.access-token-uri=${auth-server}/oauth/token
 security.oauth2.client.user-authorization-uri=${auth-server}/oauth/authorize
 security.oauth2.client.scope=read,write
-security.oauth2.resource.jwt.key-uri=${auth-server}/oauth/token_key
+security.oauth2.resource.jwt.key-uri=${auth-server}/token_key
 ```
 
 ## Screens
