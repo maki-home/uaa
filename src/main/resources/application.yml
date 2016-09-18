@@ -9,6 +9,7 @@ security.oauth2.authorization.token-key-access: permitAll()
 security.oauth2.authorization.check-token-access: isAuthenticated()
 #logging.level.org.hibernate.SQL: DEBUG
 #logging.level.org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+logging.level.org.springframework.cloud.servicebroker.controller.BaseController: DEBUG
 spring.datasource.url: jdbc:mysql://localhost:3306/uaa
 spring.datasource.username: root
 spring.datasource.password:
@@ -55,3 +56,7 @@ jwt:
     406ble9CLuQPxcpXU32IHNRYz+ZWghwfS3/5bF+3yUPfnC5IyEz+bk7tACvArt5K
     Te7HeEGS5GcEw0PWTruy1lgRtdltJfkAI+dXBbWqeGkzff7uKAqz5w==
     -----END RSA PRIVATE KEY-----
+security:
+  user:
+    name: user
+    password: password
