@@ -5,6 +5,7 @@
       "name": "maki-uaa",
       "description": "Simple UAA (User Account and Authentication)",
       "bindable": true,
+      "planUpdateable": false,
       "requires": [],
       "tags": [
         "sso",
