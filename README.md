@@ -1,5 +1,7 @@
 # Simple UAA (User Account and Authentication)
 
+a.k.a. Maki UAA
+
 ### Build
 
 ``` console
@@ -36,21 +38,21 @@ No need to configure properties.
 
 ``` console
 $ cf create-service p-mysql 100mb-dev uaa-db
-$ cf push
+$ cf push your-uaa-b java_buildpack_offline
 ```
 
 ### Deploy to PCFDev
 
 ``` console
 $ cf create-service p-mysql 100mb-dev uaa-db
-$ cf push
+$ cf push your-uaa
 ```
 
 ### Deploy to PWS
 
 ``` console
 $ cf create-service cleardb spark uaa-db
-$ cf push -b java_buildpack
+$ cf push your-uaa
 ```
 
 
@@ -120,6 +122,81 @@ security.oauth2.client.user-authorization-uri=${auth-server}/oauth/authorize
 security.oauth2.client.scope=read,write
 security.oauth2.resource.jwt.key-uri=${auth-server}/token_key
 ```
+
+## Enable Cloud Foundry Service Broker
+
+Maki UAA implements [Service Broker API v 2.8](https://docs.cloudfoundry.org/services/api-v2.8.html) which is compatible with [Single Sign-On for PCF](http://docs.pivotal.io/p-identity).
+
+### How to enable Service Broker
+
+```
+$ cf create-service-broker your-uaa user password http://your-uaa.<domain>/uaa --space-scoped
+```
+
+username and password can be configured by setting `security.user.name` and `security.user.password` before `cf create-service-broker` as follows:
+
+``` console
+$ cf set-env your-uaa security.user.name admin
+$ cf set-env your-uaa security.user.password pass
+$ cf restart your-uaa
+```
+
+If you are CF admin and want to publish this service to all/specific organization, you can use `enable-service-access` like following:
+
+
+``` console
+$ cf create-service-broker your-uaa user password http://your-uaa.<domain>/uaa
+$ cf enable-service-access your-uaa [-o ORG]
+```
+
+Then, you'll see `maki-uaa` in marketplace.
+
+``` console
+$ cf marketplace
+
+service                       plans                     description
+maki-uaa                      standard                  Simple UAA (User Account and Authentication)
+...
+```
+
+### Create service instance
+
+This service broker create an application, which means "OAuth Client", per not service instance binding but **service instance**. 
+
+``` console
+$ cf create-service maki-uaa standard my-sso -c '{"appUrl":"https://my-app.example.com", "appName":"My App", "redirectUrls":["https://my-app.example.com/login"]}'
+$ cf bind-service my-app my-sso
+$ cf env my-app
+
+System-Provided:
+{
+ "VCAP_SERVICES": {
+  "maki-uaa": [
+   {
+    "credentials": {
+     "auth_domain": "https://your-uaa.cfapps.io/uaa",
+     "client_id": "3571c28d-083b-4319-a242-f161b9ccb7e2",
+     "client_secret": "021bd44b-ea24-45af-950e-136e5a3e19d2"
+    },
+    "label": "maki-uaa",
+    "name": "my-sso",
+    "plan": "standard",
+    "provider": null,
+    "syslog_drain_url": null,
+    "tags": [
+     "sso",
+     "oauth2"
+    ],
+    "volume_mounts": []
+   }
+  ]
+}
+```
+
+> **Note:**
+> 
+> [Spring Cloud Single Sign-On Connector](https://github.com/pivotal-cf/spring-cloud-sso-connector) is not available at this moment because [it checks whether `label` in `credentials` is `p-identity`](https://github.com/pivotal-cf/spring-cloud-sso-connector/blob/1.1.0.RELEASE/src/main/java/io/pivotal/spring/cloud/SsoServiceInfoCreator.java#L16).
+> You could use use this connector if you change [catalog.json](https://github.com/maki-home/uaa/blob/master/src/main/resources/catalog.json#L5) from `maki-uaa` to `p-identity`;
 
 ## Screens
 
