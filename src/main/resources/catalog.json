@@ -8,8 +8,7 @@
       "requires": [],
       "tags": [
         "sso",
-        "oauth2",
-        "p-identity"
+        "oauth2"
       ],
       "metadata": {
         "displayName": "Maki UAA",
