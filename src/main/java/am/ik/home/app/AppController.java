@@ -27,6 +27,7 @@ public class AppController {
         if (result.hasErrors()) {
             return "apps/new";
         }
+        app.setAppId(UUID.randomUUID().toString());
         app.setAppSecret(UUID.randomUUID().toString());
         appRepository.save(app);
         return "redirect:/";

@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.URL;
 
@@ -24,9 +23,8 @@ import java.util.concurrent.TimeUnit;
 @NoArgsConstructor
 public class App implements Serializable {
     @Id
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
-    @GeneratedValue(generator = "uuid")
     @Column(columnDefinition = "varchar(36)")
+    @Size(min = 36, max = 36)
     private String appId;
     @NotEmpty
     @Size(max = 255)
@@ -39,7 +37,7 @@ public class App implements Serializable {
     private String appSecret;
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    @NotEmpty
+    @NotNull
     private Set<AppRole> roles;
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
@@ -48,7 +46,7 @@ public class App implements Serializable {
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> scopes;
     @ElementCollection(fetch = FetchType.EAGER)
-    @NotEmpty
+    @NotNull
     private Set<String> redirectUrls;
     @Max(600000)
     @Min(0)
