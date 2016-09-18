@@ -195,7 +195,7 @@ System-Provided:
 
 > **Note:**
 > 
-> [Spring Cloud Single Sign-On Connector](https://github.com/pivotal-cf/spring-cloud-sso-connector) is not available at this moment because [it checks whether `label` in `credentials` is `p-identity`](https://github.com/pivotal-cf/spring-cloud-sso-connector/blob/1.1.0.RELEASE/src/main/java/io/pivotal/spring/cloud/SsoServiceInfoCreator.java#L16).
+> [Spring Cloud Single Sign-On Connector](https://github.com/pivotal-cf/spring-cloud-sso-connector) is not available at this moment because [it checks whether `label` in `VCAP_SERVICES` is `p-identity`](https://github.com/pivotal-cf/spring-cloud-sso-connector/blob/1.1.0.RELEASE/src/main/java/io/pivotal/spring/cloud/SsoServiceInfoCreator.java#L16).
 > You could use use this connector if you change [catalog.json](https://github.com/maki-home/uaa/blob/master/src/main/resources/catalog.json#L5) from `maki-uaa` to `p-identity`;
 
 ## Screens
