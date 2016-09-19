@@ -13,6 +13,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.servicebroker.model.Catalog;
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest;
+import org.springframework.cloud.servicebroker.model.UpdateServiceInstanceRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -134,6 +135,53 @@ public class ServiceBrokerTests {
 		assertThat(entity.getBody().get("dashboard_url").isNull()).isEqualTo(true);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 		App app = appRepository.findOne(serviceInstanceId);
+		assertThat(app).isNotNull();
+		assertThat(app.getAppName()).isEqualTo("My App");
+		assertThat(app.getAppUrl()).isEqualTo("https://myapp.example.com");
+		assertThat(app.getRedirectUrls()).contains("https://myapp.example.com",
+				"https://myapp.example.com/login");
+	}
+
+	@Test
+	public void createServiceAndUpdateServiceAuthorized() throws Exception {
+		String serviceInstanceId = UUID.randomUUID().toString();
+		RequestEntity<CreateServiceInstanceRequest> req = RequestEntity
+				.put(UriComponentsBuilder.fromHttpUrl(uri)
+						.pathSegment("v2", "service_instances", serviceInstanceId).build()
+						.toUri())
+				.body(new CreateServiceInstanceRequest(
+						"7c1d35ca-b696-4e74-a9b9-4a45aab66e6d",
+						"e4518390-ab55-411c-b11c-55c31f25db90",
+						"00000000-0000-0000-0000-000000000000",
+						"00000000-0000-0000-0000-000000000000", Collections.emptyMap()));
+		ResponseEntity<JsonNode> entity = restTemplate.exchange(req, JsonNode.class);
+		assertThat(entity.getBody().get("async").asBoolean()).isEqualTo(false);
+		assertThat(entity.getBody().get("dashboard_url").isNull()).isEqualTo(true);
+		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+		App app = appRepository.findOne(serviceInstanceId);
+		assertThat(app).isNotNull();
+		assertThat(app.getAppName()).isEqualTo(serviceInstanceId);
+		assertThat(app.getRedirectUrls()).isEmpty();
+
+		RequestEntity<UpdateServiceInstanceRequest> req2 = RequestEntity
+				.post(UriComponentsBuilder.fromHttpUrl(uri)
+						.queryParam("_method", "PATCH")
+						.pathSegment("v2", "service_instances", serviceInstanceId).build()
+						.toUri())
+				.body(new UpdateServiceInstanceRequest(
+						"7c1d35ca-b696-4e74-a9b9-4a45aab66e6d",
+						"e4518390-ab55-411c-b11c-55c31f25db90",
+						new HashMap<String, Object>() {
+							{
+								put("appName", "My App");
+								put("appUrl", "https://myapp.example.com");
+								put("redirectUrls", asList("https://myapp.example.com",
+										"https://myapp.example.com/login"));
+							}
+						}));
+		ResponseEntity<JsonNode> entity2 = restTemplate.exchange(req2, JsonNode.class);
+		assertThat(entity2.getStatusCode()).isEqualTo(HttpStatus.OK);
+		app = appRepository.findOne(serviceInstanceId);
 		assertThat(app).isNotNull();
 		assertThat(app.getAppName()).isEqualTo("My App");
 		assertThat(app.getAppUrl()).isEqualTo("https://myapp.example.com");

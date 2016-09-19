@@ -8,11 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.servicebroker.model.*;
 import org.springframework.cloud.servicebroker.service.ServiceInstanceService;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -22,7 +22,7 @@ public class UaaServiceInstanceService implements ServiceInstanceService {
 	@Override
 	public CreateServiceInstanceResponse createServiceInstance(
 			CreateServiceInstanceRequest request) {
-		Map<String, Object> parameters = request.getParameters();
+		ArbitraryParameters parameters = new ArbitraryParameters(request.getParameters());
 
 		String serviceInstanceId = request.getServiceInstanceId();
 		App app = App.builder().appId(serviceInstanceId)
@@ -38,30 +38,13 @@ public class UaaServiceInstanceService implements ServiceInstanceService {
 				}).accessTokenValiditySeconds((int) TimeUnit.HOURS.toSeconds(3))
 				.refreshTokenValiditySeconds(0).build();
 
-		if (parameters != null && !StringUtils.isEmpty(parameters.get("appUrl"))) {
-			app.setAppUrl((String) parameters.get("appUrl"));
-		}
-		else {
-			app.setAppUrl("http://" + app.getAppId() + ".example.com");
-		}
-		if (parameters != null && !StringUtils.isEmpty(parameters.get("appName"))) {
-			app.setAppName((String) parameters.get("appName"));
-		}
-		else {
-			app.setAppName(app.getAppId());
-		}
-		if (parameters != null && parameters.get("redirectUrls") instanceof Collection
-				&& !CollectionUtils
-						.isEmpty((Collection) parameters.get("redirectUrls"))) {
-			Set<String> urls = new HashSet<>();
-			for (Object url : Collection.class.cast(parameters.get("redirectUrls"))) {
-				urls.add((String) url);
-			}
-			app.setRedirectUrls(urls);
-		}
-		else {
-			app.setRedirectUrls(Collections.emptySet());
-		}
+		app.setAppUrl(parameters.appUrl()
+				.orElseGet(() -> "http://" + app.getAppId() + ".example.com"));
+		app.setAppName(parameters.appName().orElseGet(() -> app.getAppId()));
+		app.setRedirectUrls(parameters.redirectUrls()
+				.map(urls -> urls.stream().collect(Collectors.toSet()))
+				.orElseGet(() -> Collections.emptySet()));
+
 		appRepository.save(app);
 		return new CreateServiceInstanceResponse();
 	}
@@ -81,9 +64,39 @@ public class UaaServiceInstanceService implements ServiceInstanceService {
 	}
 
 	@Override
-
+	@Transactional
 	public UpdateServiceInstanceResponse updateServiceInstance(
 			UpdateServiceInstanceRequest request) {
+		appRepository.findByAppId(request.getServiceInstanceId()).ifPresent(app -> {
+			ArbitraryParameters parameters = new ArbitraryParameters(
+					request.getParameters());
+			parameters.appUrl().ifPresent(url -> app.setAppUrl(url));
+			parameters.appName().ifPresent(name -> app.setAppName(name));
+			parameters.redirectUrls().ifPresent(urls -> app
+					.setRedirectUrls(urls.stream().collect(Collectors.toSet())));
+		});
 		return new UpdateServiceInstanceResponse();
+	}
+
+	static class ArbitraryParameters {
+		final Map<String, Object> parameters;
+
+		public ArbitraryParameters(Map<String, Object> parameters) {
+			this.parameters = parameters == null ? Collections.emptyMap() : parameters;
+		}
+
+		Optional<String> appUrl() {
+			return Optional.ofNullable(parameters.get("appUrl")).map(Object::toString);
+		}
+
+		Optional<String> appName() {
+			return Optional.ofNullable(parameters.get("appName")).map(Object::toString);
+		}
+
+		@SuppressWarnings("unchecked")
+		Optional<Collection<String>> redirectUrls() {
+			return Optional.ofNullable(parameters.get("redirectUrls"))
+					.map(Collection.class::cast);
+		}
 	}
 }
