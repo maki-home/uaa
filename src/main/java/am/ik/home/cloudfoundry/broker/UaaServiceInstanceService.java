@@ -40,10 +40,10 @@ public class UaaServiceInstanceService implements ServiceInstanceService {
 
 		app.setAppUrl(parameters.appUrl()
 				.orElseGet(() -> "http://" + app.getAppId() + ".example.com"));
-		app.setAppName(parameters.appName().orElseGet(() -> app.getAppId()));
+		app.setAppName(parameters.appName().orElseGet(app::getAppId));
 		app.setRedirectUrls(parameters.redirectUrls()
 				.map(urls -> urls.stream().collect(Collectors.toSet()))
-				.orElseGet(() -> Collections.emptySet()));
+				.orElseGet(Collections::emptySet));
 
 		appRepository.save(app);
 		return new CreateServiceInstanceResponse();
@@ -70,18 +70,18 @@ public class UaaServiceInstanceService implements ServiceInstanceService {
 		appRepository.findByAppId(request.getServiceInstanceId()).ifPresent(app -> {
 			ArbitraryParameters parameters = new ArbitraryParameters(
 					request.getParameters());
-			parameters.appUrl().ifPresent(url -> app.setAppUrl(url));
-			parameters.appName().ifPresent(name -> app.setAppName(name));
+			parameters.appUrl().ifPresent(app::setAppUrl);
+			parameters.appName().ifPresent(app::setAppName);
 			parameters.redirectUrls().ifPresent(urls -> app
 					.setRedirectUrls(urls.stream().collect(Collectors.toSet())));
 		});
 		return new UpdateServiceInstanceResponse();
 	}
 
-	static class ArbitraryParameters {
+	private static class ArbitraryParameters {
 		final Map<String, Object> parameters;
 
-		public ArbitraryParameters(Map<String, Object> parameters) {
+		ArbitraryParameters(Map<String, Object> parameters) {
 			this.parameters = parameters == null ? Collections.emptyMap() : parameters;
 		}
 
