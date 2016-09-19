@@ -173,7 +173,7 @@ public class UaaApplication {
                     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                     .and()
                     .authorizeRequests()
-                    .mvcMatchers("/user", "/userinfo").access("#oauth2.hasScope('openid')")
+                    .mvcMatchers("/userinfo").access("#oauth2.hasScope('openid')")
                     .antMatchers(HttpMethod.GET, "/api/**").access("#oauth2.clientHasRole('ROLE_TRUSTED_CLIENT') and #oauth2.hasScope('read')")
                     .antMatchers(HttpMethod.POST, "/api/**").access("#oauth2.clientHasRole('ROLE_TRUSTED_CLIENT') and #oauth2.hasScope('write')");
         }
