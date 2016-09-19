@@ -173,20 +173,20 @@ public class ServiceBrokerTests {
 						"e4518390-ab55-411c-b11c-55c31f25db90",
 						new HashMap<String, Object>() {
 							{
-								put("appName", "My App");
-								put("appUrl", "https://myapp.example.com");
-								put("redirectUrls", asList("https://myapp.example.com",
-										"https://myapp.example.com/login"));
+								put("appName", "My App 2");
+								put("appUrl", "https://myapp2.example.com");
+								put("redirectUrls", asList("https://myapp2.example.com",
+										"https://myapp2.example.com/login"));
 							}
 						}));
 		ResponseEntity<JsonNode> entity2 = restTemplate.exchange(req2, JsonNode.class);
 		assertThat(entity2.getStatusCode()).isEqualTo(HttpStatus.OK);
 		app = appRepository.findOne(serviceInstanceId);
 		assertThat(app).isNotNull();
-		assertThat(app.getAppName()).isEqualTo("My App");
-		assertThat(app.getAppUrl()).isEqualTo("https://myapp.example.com");
-		assertThat(app.getRedirectUrls()).contains("https://myapp.example.com",
-				"https://myapp.example.com/login");
+		assertThat(app.getAppName()).isEqualTo("My App 2");
+		assertThat(app.getAppUrl()).isEqualTo("https://myapp2.example.com");
+		assertThat(app.getRedirectUrls()).contains("https://myapp2.example.com",
+				"https://myapp2.example.com/login");
 	}
 
 	@Test
