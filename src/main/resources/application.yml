@@ -6,7 +6,7 @@ server.session.timeout: 86400
 spring.datasource.sql-script-encoding: UTF-8
 spring.data.rest.base-path: /api
 security.oauth2.authorization.token-key-access: permitAll()
-security.oauth2.authorization.check-token-access: isAuthenticated()
+security.oauth2.authorization.check-token-access: hasAnyRole('CLIENT', 'TRUSTED_CLIENT')
 #logging.level.org.hibernate.SQL: DEBUG
 #logging.level.org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 logging.level.org.springframework.cloud.servicebroker.controller.BaseController: DEBUG
