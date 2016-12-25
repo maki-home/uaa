@@ -5,6 +5,11 @@ resources:
     source:
       uri: https://github.com/maki-home/uaa.git
       branch: master
+  - name: utils
+    type: git
+    source:
+      uri: https://github.com/maki-home/concourse-utils
+      branch: master
   - name: cf
     type: cf
     source:
@@ -28,50 +33,64 @@ resources:
 jobs:
   - name: uaa-unit
     plan:
-      - get: uaa-repo
-        trigger: true
-      - get: m2
+      - aggregate:
+        - get: uaa-repo
+          trigger: true
+        - get: utils
+        - get: m2
       - task: unit
         config:
           platform: linux
           image_resource:
             type: docker-image
             source:
-              repository: java
-              tag: 8-jdk-alpine
+              repository: making/alpine-java-bash-git
           inputs:
             - name: uaa-repo
+            - name: utils
             - name: m2
           run:
             path: sh
             args:
+            - -c
             - |
+              BASEDIR=`pwd`
+              cd uaa-repo/uaa-server
+              $BASEDIR/utils/scripts/add-repos-in-pom-xml.sh
+              cd -
               uaa-repo/ci/tasks/unit.sh uaa-repo/uaa-server
           params:
             _JAVA_OPTIONS: -Duser.timezone=Asia/Tokyo -Duser.language=ja -Duser.country=JP -Djava.security.egd=file:/dev/./urandom
   - name: uaa-deploy
     plan:
-      - get: uaa-repo
-        trigger: true
-        passed: [ uaa-unit ]
-      - get: m2
+      - aggregate:
+        - get: uaa-repo
+          trigger: true
+          passed: [ uaa-unit ]
+        - get: utils
+        - get: m2
       - task: package
         config:
           platform: linux
           image_resource:
             type: docker-image
             source:
-              repository: java
-              tag: 8-jdk-alpine
+              repository: making/alpine-java-bash-git
           inputs:
             - name: uaa-repo
+            - name: utils
             - name: m2
           outputs:
             - name: output
           run:
             path: sh
             args:
+            - -c
             - |
+              BASEDIR=`pwd`
+              cd uaa-repo/uaa-server
+              $BASEDIR/utils/scripts/add-repos-in-pom-xml.sh
+              cd -
               uaa-repo/ci/tasks/package.sh uaa-repo/uaa-server
       - put: cf
         params:
@@ -80,28 +99,34 @@ jobs:
           current_app_name: home-uaa
   - name: uaa-docker-push
     plan:
-      - get: uaa-repo
-        trigger: true
-        passed: [ uaa-unit ]
-      - get: m2
+      - aggregate:
+        - get: uaa-repo
+          trigger: true
+          passed: [ uaa-unit ]
+        - get: m2
+        - get: utils
       - task: package
         config:
           platform: linux
           image_resource:
             type: docker-image
             source:
-              repository: java
-              tag: 8-jdk-alpine
+              repository: making/alpine-java-bash-git
           inputs:
             - name: uaa-repo
-              path: repo
+            - name: utils
             - name: m2
           outputs:
             - name: output
           run:
             path: sh
             args:
+            - -c
             - |
+              BASEDIR=`pwd`
+              cd uaa-repo/uaa-server
+              $BASEDIR/utils/scripts/add-repos-in-pom-xml.sh
+              cd -
               uaa-repo/ci/tasks/package.sh uaa-repo/uaa-server
       - put: dockerhub
         params:
