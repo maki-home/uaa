@@ -1,10 +1,7 @@
 package am.ik.home.client.member;
 
-import static am.ik.home.client.member.PageableUtils.withPageable;
 import static am.ik.home.client.member.TypeReferences.memberResourceType;
 import static am.ik.home.client.member.TypeReferences.memberResourcesType;
-import static org.springframework.http.RequestEntity.get;
-import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 import java.util.concurrent.ExecutionException;
 
@@ -16,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureAdapter;
 import org.springframework.web.client.AsyncRestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 public class AsyncMemberClientImpl implements MemberClient.Async {
 	private final String apiBase;
@@ -29,9 +25,7 @@ public class AsyncMemberClientImpl implements MemberClient.Async {
 
 	@Override
 	public ListenableFuture<PagedResources<Member>> findAll(Pageable pageable) {
-		UriComponentsBuilder builder = fromHttpUrl(apiBase).pathSegment("api", "members");
-		RequestEntity<Void> requestEntity = get(
-				withPageable(builder, pageable).build().encode().toUri()).build();
+		RequestEntity<Void> requestEntity = RequestEntities.findAll(apiBase, pageable);
 		return new ListenableFutureAdapter<PagedResources<Member>, ResponseEntity<PagedResources<Member>>>(
 				asyncRestTemplate.exchange(requestEntity.getUrl(),
 						requestEntity.getMethod(), requestEntity, memberResourcesType)) {
@@ -46,9 +40,7 @@ public class AsyncMemberClientImpl implements MemberClient.Async {
 
 	@Override
 	public ListenableFuture<Resource<Member>> findOne(String memberId) {
-		RequestEntity<Void> requestEntity = get(fromHttpUrl(apiBase)
-				.pathSegment("api", "members", memberId).build().encode().toUri())
-						.build();
+		RequestEntity<Void> requestEntity = RequestEntities.findOne(apiBase, memberId);
 		return new ListenableFutureAdapter<Resource<Member>, ResponseEntity<Resource<Member>>>(
 				asyncRestTemplate.exchange(requestEntity.getUrl(),
 						requestEntity.getMethod(), requestEntity, memberResourceType)) {
@@ -63,10 +55,7 @@ public class AsyncMemberClientImpl implements MemberClient.Async {
 
 	@Override
 	public ListenableFuture<PagedResources<Member>> findByIds(String... ids) {
-		RequestEntity<Void> requestEntity = get(
-				fromHttpUrl(apiBase).pathSegment("api", "members", "search", "findByIds")
-						.queryParam("ids", (Object[]) ids).build().encode().toUri())
-								.build();
+		RequestEntity<Void> requestEntity = RequestEntities.findByIds(apiBase, ids);
 		return new ListenableFutureAdapter<PagedResources<Member>, ResponseEntity<PagedResources<Member>>>(
 				asyncRestTemplate.exchange(requestEntity.getUrl(),
 						requestEntity.getMethod(), requestEntity, memberResourcesType)) {
@@ -81,9 +70,7 @@ public class AsyncMemberClientImpl implements MemberClient.Async {
 
 	@Override
 	public ListenableFuture<Resource<Member>> findByEmail(String email) {
-		RequestEntity<Void> requestEntity = get(fromHttpUrl(apiBase)
-				.pathSegment("api", "members", "search", "findByEmail")
-				.queryParam("email", email).build().encode().toUri()).build();
+		RequestEntity<Void> requestEntity = RequestEntities.findByEmail(apiBase, email);
 		return new ListenableFutureAdapter<Resource<Member>, ResponseEntity<Resource<Member>>>(
 				asyncRestTemplate.exchange(requestEntity.getUrl(),
 						requestEntity.getMethod(), requestEntity, memberResourceType)) {
