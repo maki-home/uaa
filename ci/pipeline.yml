@@ -31,7 +31,7 @@ resources:
       password: {{docker-password}}
       email: {{docker-email}}
 jobs:
-  - name: uaa-unit
+  - name: uaa-unit-test-server
     plan:
       - aggregate:
         - get: uaa-repo
@@ -58,12 +58,41 @@ jobs:
               uaa-repo/ci/tasks/unit.sh uaa-repo/uaa-server
           params:
             _JAVA_OPTIONS: -Duser.timezone=Asia/Tokyo -Duser.language=ja -Duser.country=JP -Djava.security.egd=file:/dev/./urandom
+  - name: uaa-unit-test-client
+    plan:
+      - aggregate:
+        - get: uaa-repo
+          trigger: true
+        - get: utils
+        - get: m2
+      - task: unit
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: making/alpine-java-bash-git
+          inputs:
+            - name: uaa-repo
+            - name: utils
+            - name: m2
+          run:
+            path: sh
+            args:
+            - -c
+            - |
+              utils/scripts/add-repos-in-pom-xml.sh uaa-repo
+              uaa-repo/ci/tasks/unit.sh uaa-repo/uaa-client
+          params:
+            _JAVA_OPTIONS: -Duser.timezone=Asia/Tokyo -Duser.language=ja -Duser.country=JP -Djava.security.egd=file:/dev/./urandom
   - name: uaa-deploy-to-nexus
     plan:
       - aggregate:
         - get: uaa-repo
           trigger: true
-          passed: [ uaa-unit ]
+          passed:
+          - uaa-unit-test-server
+          - uaa-unit-test-client
         - get: utils
         - get: m2
       - task: deploy
@@ -95,7 +124,6 @@ jobs:
           trigger: true
           passed: [ uaa-deploy-to-nexus ]
         - get: utils
-        - get: m2
       - task: download
         config:
           platform: linux
@@ -106,7 +134,6 @@ jobs:
           inputs:
             - name: uaa-repo
             - name: utils
-            - name: m2
           outputs:
             - name: output
           run:
@@ -127,7 +154,6 @@ jobs:
         - get: uaa-repo
           trigger: true
           passed: [ uaa-deploy-to-nexus ]
-        - get: m2
         - get: utils
       - task: download
         config:
@@ -139,7 +165,6 @@ jobs:
           inputs:
             - name: uaa-repo
             - name: utils
-            - name: m2
           outputs:
             - name: output
           run:
