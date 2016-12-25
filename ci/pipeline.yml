@@ -21,7 +21,7 @@ resources:
   - name: dockerhub
     type: docker-image
     source:
-      repository: making/maki-uaa
+      repository: making/maki-uaa-server
       username: {{docker-username}}
       password: {{docker-password}}
       email: {{docker-email}}
@@ -41,12 +41,12 @@ jobs:
               tag: 8-jdk-alpine
           inputs:
             - name: uaa-repo
-              path: repo
             - name: m2
           run:
             path: sh
             args:
-            - repo/ci/tasks/unit.sh
+            - |
+              uaa-repo/ci/tasks/unit.sh uaa-repo/uaa-server
           params:
             _JAVA_OPTIONS: -Duser.timezone=Asia/Tokyo -Duser.language=ja -Duser.country=JP -Djava.security.egd=file:/dev/./urandom
   - name: uaa-deploy
@@ -65,17 +65,17 @@ jobs:
               tag: 8-jdk-alpine
           inputs:
             - name: uaa-repo
-              path: repo
             - name: m2
           outputs:
             - name: output
           run:
             path: sh
             args:
-            - repo/ci/tasks/package.sh
+            - |
+              uaa-repo/ci/tasks/package.sh uaa-repo/uaa-server
       - put: cf
         params:
-          manifest: uaa-repo/manifest-pez.yml
+          manifest: uaa-repo/uaa-server/manifest-pez.yml
           path: output/app.jar
           current_app_name: home-uaa
   - name: uaa-docker-push
@@ -101,9 +101,10 @@ jobs:
           run:
             path: sh
             args:
-            - repo/ci/tasks/package.sh
+            - |
+              uaa-repo/ci/tasks/package.sh uaa-repo/uaa-server
       - put: dockerhub
         params:
           build: .
-          dockerfile: uaa-repo/Dockerfile
+          dockerfile: uaa-repo/uaa-server/Dockerfile
           tag_as_latest: true

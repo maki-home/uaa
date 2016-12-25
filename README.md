@@ -5,6 +5,7 @@ a.k.a. Maki UAA
 ### Build
 
 ``` console
+$ cd uaa-server
 $ ./mvnw clean package
 ```
 
