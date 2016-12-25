@@ -92,6 +92,7 @@ jobs:
               $BASEDIR/utils/scripts/add-repos-in-pom-xml.sh
               cd -
               uaa-repo/ci/tasks/package.sh uaa-repo/uaa-server
+              cp uaa-repo/uaa-server/target/*.jar ../output/app.jar
       - put: cf
         params:
           manifest: uaa-repo/uaa-server/manifest-pez.yml
@@ -128,6 +129,7 @@ jobs:
               $BASEDIR/utils/scripts/add-repos-in-pom-xml.sh
               cd -
               uaa-repo/ci/tasks/package.sh uaa-repo/uaa-server
+              cp uaa-repo/uaa-server/target/*.jar ../output/app.jar
       - put: dockerhub
         params:
           build: .
