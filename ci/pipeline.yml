@@ -87,7 +87,6 @@ jobs:
               utils/scripts/add-repos-in-pom-xml.sh uaa-repo
               uaa-repo/ci/tasks/package.sh uaa-repo/uaa-server
               uaa-repo/ci/tasks/package.sh uaa-repo/uaa-client
-              pwd
               cp uaa-repo/uaa-server/target/*.jar output/app.jar
       - put: cf
         params:
