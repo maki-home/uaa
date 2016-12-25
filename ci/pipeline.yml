@@ -55,7 +55,7 @@ jobs:
             - -c
             - |
               BASEDIR=`pwd`
-              cd uaa-repo/uaa-server
+              cd uaa-repo
               $BASEDIR/utils/scripts/add-repos-in-pom-xml.sh
               cd -
               uaa-repo/ci/tasks/unit.sh uaa-repo/uaa-server
@@ -88,7 +88,7 @@ jobs:
             - -c
             - |
               BASEDIR=`pwd`
-              cd uaa-repo/uaa-server
+              cd uaa-repo
               $BASEDIR/utils/scripts/add-repos-in-pom-xml.sh
               cd -
               uaa-repo/ci/tasks/package.sh uaa-repo/uaa-server
@@ -125,7 +125,7 @@ jobs:
             - -c
             - |
               BASEDIR=`pwd`
-              cd uaa-repo/uaa-server
+              cd uaa-repo
               $BASEDIR/utils/scripts/add-repos-in-pom-xml.sh
               cd -
               uaa-repo/ci/tasks/package.sh uaa-repo/uaa-server
