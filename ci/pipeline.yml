@@ -58,7 +58,7 @@ jobs:
               uaa-repo/ci/tasks/unit.sh uaa-repo/uaa-server
           params:
             _JAVA_OPTIONS: -Duser.timezone=Asia/Tokyo -Duser.language=ja -Duser.country=JP -Djava.security.egd=file:/dev/./urandom
-  - name: uaa-deploy
+  - name: uaa-deploy-to-nexus
     plan:
       - aggregate:
         - get: uaa-repo
@@ -66,7 +66,7 @@ jobs:
           passed: [ uaa-unit ]
         - get: utils
         - get: m2
-      - task: package
+      - task: deploy
         config:
           platform: linux
           image_resource:
@@ -84,30 +84,58 @@ jobs:
             args:
             - -c
             - |
-              utils/scripts/add-repos-in-pom-xml.sh uaa-repo
-              uaa-repo/ci/tasks/package.sh uaa-repo/uaa-server
-              uaa-repo/ci/tasks/package.sh uaa-repo/uaa-client
-              cp uaa-repo/uaa-server/target/*.jar output/app.jar
+              utils/scripts/add-repos-in-pom-xml.sh uaa-repo && \
+              utils/scripts/add-distribution-management-in-pom-xml.sh uaa-repo && \
+              utils/scripts/generate-settings-xml.sh {{nexus-username}} {{nexus-password}} uaa-repo && \
+              uaa-repo/ci/tasks/deploy.sh uaa-repo
+  - name: uaa-deploy-to-cf
+    plan:
+      - aggregate:
+        - get: uaa-repo
+          trigger: true
+          passed: [ uaa-deploy-to-nexus ]
+        - get: utils
+        - get: m2
+      - task: download
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: maven
+          inputs:
+            - name: uaa-repo
+            - name: utils
+            - name: m2
+          outputs:
+            - name: output
+          run:
+            path: sh
+            args:
+            - -c
+            - |
+              utils/scripts/generate-download-artifact-xml.sh am.ik.home uaa-server 0.0.1-SNAPSHOT output && \
+              mvn -f output/download-artifact.xml validate
       - put: cf
         params:
           manifest: uaa-repo/uaa-server/manifest-pez.yml
           path: output/app.jar
           current_app_name: home-uaa
-  - name: uaa-docker-push
+  - name: uaa-deploy-to-dockerhub
     plan:
       - aggregate:
         - get: uaa-repo
           trigger: true
-          passed: [ uaa-unit ]
+          passed: [ uaa-deploy-to-nexus ]
         - get: m2
         - get: utils
-      - task: package
+      - task: download
         config:
           platform: linux
           image_resource:
             type: docker-image
             source:
-              repository: making/alpine-java-bash-git
+              repository: maven
           inputs:
             - name: uaa-repo
             - name: utils
@@ -119,9 +147,8 @@ jobs:
             args:
             - -c
             - |
-              utils/scripts/add-repos-in-pom-xml.sh uaa-repo
-              uaa-repo/ci/tasks/package.sh uaa-repo/uaa-server
-              cp uaa-repo/uaa-server/target/*.jar output/app.jar
+              utils/scripts/generate-download-artifact-xml.sh am.ik.home uaa-server 0.0.1-SNAPSHOT output && \
+              mvn -f output/download-artifact.xml validate
       - put: dockerhub
         params:
           build: .
