@@ -54,10 +54,7 @@ jobs:
             args:
             - -c
             - |
-              BASEDIR=`pwd`
-              cd uaa-repo
-              $BASEDIR/utils/scripts/add-repos-in-pom-xml.sh
-              cd $BASEDIR
+              utils/scripts/add-repos-in-pom-xml.sh uaa-repo
               uaa-repo/ci/tasks/unit.sh uaa-repo/uaa-server
           params:
             _JAVA_OPTIONS: -Duser.timezone=Asia/Tokyo -Duser.language=ja -Duser.country=JP -Djava.security.egd=file:/dev/./urandom
@@ -87,12 +84,10 @@ jobs:
             args:
             - -c
             - |
-              BASEDIR=`pwd`
-              cd uaa-repo
-              $BASEDIR/utils/scripts/add-repos-in-pom-xml.sh
-              cd $BASEDIR
+              utils/scripts/add-repos-in-pom-xml.sh uaa-repo
               uaa-repo/ci/tasks/package.sh uaa-repo/uaa-server
-              cp uaa-repo/uaa-server/target/*.jar $BASEDIR/output/app.jar
+              uaa-repo/ci/tasks/package.sh uaa-repo/uaa-client
+              cp uaa-repo/uaa-server/target/*.jar ../output/app.jar
       - put: cf
         params:
           manifest: uaa-repo/uaa-server/manifest-pez.yml
@@ -124,12 +119,9 @@ jobs:
             args:
             - -c
             - |
-              BASEDIR=`pwd`
-              cd uaa-repo
-              $BASEDIR/utils/scripts/add-repos-in-pom-xml.sh
-              cd $BASEDIR
+              utils/scripts/add-repos-in-pom-xml.sh uaa-repo
               uaa-repo/ci/tasks/package.sh uaa-repo/uaa-server
-              cp uaa-repo/uaa-server/target/*.jar $BASEDIR/output/app.jar
+              cp uaa-repo/uaa-server/target/*.jar ../output/app.jar
       - put: dockerhub
         params:
           build: .
