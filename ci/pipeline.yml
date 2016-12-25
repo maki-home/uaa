@@ -54,7 +54,7 @@ jobs:
             args:
             - -c
             - |
-              utils/scripts/add-repos-in-pom-xml.sh uaa-repo
+              utils/scripts/add-repos-in-pom-xml.sh uaa-repo && \
               uaa-repo/ci/tasks/unit.sh uaa-repo/uaa-server
           params:
             _JAVA_OPTIONS: -Duser.timezone=Asia/Tokyo -Duser.language=ja -Duser.country=JP -Djava.security.egd=file:/dev/./urandom
@@ -81,7 +81,7 @@ jobs:
             args:
             - -c
             - |
-              utils/scripts/add-repos-in-pom-xml.sh uaa-repo
+              utils/scripts/add-repos-in-pom-xml.sh uaa-repo && \
               uaa-repo/ci/tasks/unit.sh uaa-repo/uaa-client
           params:
             _JAVA_OPTIONS: -Duser.timezone=Asia/Tokyo -Duser.language=ja -Duser.country=JP -Djava.security.egd=file:/dev/./urandom
