@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Maki Home UAA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/2.26.3/css/uikit.gradient.min.css"/>
+</head>
+
+<body>
+
+<div class="uk-grid">
+    <div class="uk-width-1-10"></div>
+    <div class="uk-width-8-10">
+        <h1><a th:href="@{/}">Maki Home UAA</a></h1>
+
+        <form class="uk-form uk-form-stacked" th:action="@{/apps}" th:object="${app}" method="post">
+            <div class="uk-form-row">
+                <label class="uk-form-label" th:for="appName">App Name</label>
+                <div class="uk-form-controls uk-grid">
+                    <div class="uk-width-1-1">
+                        <input type="text" th:field="*{appName}" class="uk-width-1-1"
+                               th:classappend="${#fields.hasErrors('appName')}? 'uk-form-danger'"/>
+                        <span th:if="${#fields.hasErrors('appName')}" th:errors="*{appName}"
+                              class="uk-text-danger">error!</span>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label" th:for="appUrl">App Url</label>
+                <div class="uk-form-controls uk-grid">
+                    <div class="uk-width-1-1">
+                        <input type="text" th:field="*{appUrl}" class="uk-width-1-1"
+                               th:classappend="${#fields.hasErrors('appUrl')}? 'uk-form-danger'"/>
+                        <span th:if="${#fields.hasErrors('appUrl')}" th:errors="*{appUrl}"
+                              class="uk-text-danger">error!</span>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label" th:for="roles">Roles</label>
+                <div class="uk-form-controls uk-grid">
+                    <div class="uk-width-1-1">
+                        <!--/*/ <th:block th:each="r : ${T(am.ik.home.app.AppRole).values()}"> /*/-->
+                        <label th:inline="text">
+                            <input type="checkbox" th:field="*{roles}" th:value="${r}"
+                                   th:classappend="${#fields.hasErrors('roles')}? 'uk-form-danger'"/>[[${r}]]
+                        </label>
+                        <!--/*/ </th:block> /*/-->
+                        <span th:if="${#fields.hasErrors('roles')}" th:errors="*{roles}"
+                              class="uk-text-danger">error!</span>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label" th:for="grantTypes">Grant Types</label>
+                <div class="uk-form-controls uk-grid">
+                    <div class="uk-width-1-1">
+                        <!--/*/ <th:block th:each="type : ${T(am.ik.home.app.AppGrantType).values()}"> /*/-->
+                        <label th:inline="text">
+                            <input type="checkbox" th:field="*{grantTypes}" th:value="${type}"
+                                   th:classappend="${#fields.hasErrors('grantTypes')}? 'uk-form-danger'"/>[[${type}]]
+                            <span th:if="${#fields.hasErrors('grantTypes')}" th:errors="*{grantTypes}"
+                                  class="uk-text-danger">error!</span>
+                        </label>
+                        <!--/*/ </th:block> /*/-->
+                        <span th:if="${#fields.hasErrors('grantTypes')}" th:errors="*{grantTypes}"
+                              class="uk-text-danger">error!</span>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label" th:for="scopes">Scopes (Comma separated)</label>
+                <div class="uk-form-controls uk-grid">
+                    <div class="uk-width-1-1">
+                        <input type="text" th:field="*{scopes}" class="uk-width-1-1"
+                               th:classappend="${#fields.hasErrors('scopes')}? 'uk-form-danger'"/>
+                        <span th:if="${#fields.hasErrors('scopes')}" th:errors="*{scopes}"
+                              class="uk-text-danger">error!</span>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label" th:for="redirectUrls">Redirect URLs (Comma separated)</label>
+                <div class="uk-form-controls uk-grid">
+                    <div class="uk-width-1-1">
+                        <input type="text" th:field="*{redirectUrls}" class="uk-width-1-1"
+                               th:classappend="${#fields.hasErrors('redirectUrls')}? 'uk-form-danger'"/>
+                        <span th:if="${#fields.hasErrors('redirectUrls')}" th:errors="*{redirectUrls}"
+                              class="uk-text-danger">error!</span>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label" th:for="accessTokenValiditySeconds">Access Token Validity Seconds</label>
+                <div class="uk-form-controls uk-grid">
+                    <div class="uk-width-1-1">
+                        <input type="number" th:field="*{accessTokenValiditySeconds}" class="uk-width-1-1"
+                               th:classappend="${#fields.hasErrors('accessTokenValiditySeconds')}? 'uk-form-danger'"/>
+                        <span th:if="${#fields.hasErrors('accessTokenValiditySeconds')}"
+                              th:errors="*{accessTokenValiditySeconds}"
+                              class="uk-text-danger">error!</span>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label" th:for="refreshTokenValiditySeconds">Refresh Token Validity Seconds</label>
+                <div class="uk-form-controls uk-grid">
+                    <div class="uk-width-1-1">
+                        <input type="number" th:field="*{refreshTokenValiditySeconds}" class="uk-width-1-1"
+                               th:classappend="${#fields.hasErrors('refreshTokenValiditySeconds')}? 'uk-form-danger'"/>
+                        <span th:if="${#fields.hasErrors('refreshTokenValiditySeconds')}"
+                              th:errors="*{refreshTokenValiditySeconds}"
+                              class="uk-text-danger">error!</span>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <label class="uk-form-label" th:for="autoApproveScopes">Auto Approve Scopes (Comma separated)</label>
+                <div class="uk-form-controls uk-grid">
+                    <div class="uk-width-1-1">
+                        <input type="text" th:field="*{autoApproveScopes}" class="uk-width-1-1"
+                               th:classappend="${#fields.hasErrors('autoApproveScopes')}? 'uk-form-danger'"/>
+                        <span th:if="${#fields.hasErrors('autoApproveScopes')}" th:errors="*{autoApproveScopes}"
+                              class="uk-text-danger">error!</span>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-form-row">
+                <input type="hidden" name="new"/>
+                <button class="uk-width-1-1 uk-button uk-button-primary uk-button-large"><i class="uk-icon-edit"></i>
+                    Create
+                </button>
+            </div>
+        </form>
+        <hr/>
+        <form th:action="@{/}" method="get">
+            <button class="uk-button">Back</button>
+        </form>
+    </div>
+    <div class="uk-width-1-10"></div>
+</div>
+</body>
+</html>

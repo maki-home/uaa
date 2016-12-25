@@ -1,0 +1,64 @@
+uaa-db:
+  image: mysql:5.7
+  volumes:
+    - "/tmp/uaa-db:/var/lib/mysql"
+  environment:
+    MYSQL_USER: uaa-user
+    MYSQL_PASSWORD: uaa-pass
+    MYSQL_DATABASE: uaa
+    MYSQL_ROOT_PASSWORD: keepitsimple
+uaa:
+  image: making/maki-uaa:latest
+  links:
+    - uaa-db
+  ports:
+    - "9999:9999"
+  environment:
+    _JAVA_OPTIONS: >-
+      -Duser.timezone=JST
+    # openssl genrsa -out private.pem 2048
+    # openssl rsa -in private.pem -outform PEM -pubout -out public.pem
+    JWT_VERIFIER_KEY: |
+      -----BEGIN PUBLIC KEY-----
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn9hmxF1g8yjNitBN8i4R
+      cJpuibvDqetepKYWq479d/C0qcm69nmB8cvZUQLbcDsNHy5a4hUvd7oqfo9kvdid
+      d5QcUfKX8JyA3kwUyXIJJnKNZVwfm5H+7Nby46pZ5cx8+75Zni/FCMAzB6zNq+tq
+      06Xddfhg9D6dJrNJdvltPN7ZaMkIVgVJBYljoI76W78wkbhjMiEBUbLdJ0v4i4W8
+      2Bb9YhZ5uqxlRWRgI2vSTEfvBbl+zcnRXMpBQ7p/x0yR8UpuZRcl5u6FtnRC31XV
+      C6RnUREPJiGXmjLdWg2I7ZdKa/vMuKwQb7pYKIfGb7l1BsYZYfog8Bps9sjAm0zM
+      8wIDAQAB
+      -----END PUBLIC KEY-----
+    JWT_SIGNING_KEY: |
+      -----BEGIN RSA PRIVATE KEY-----
+      MIIEpQIBAAKCAQEAn9hmxF1g8yjNitBN8i4RcJpuibvDqetepKYWq479d/C0qcm6
+      9nmB8cvZUQLbcDsNHy5a4hUvd7oqfo9kvdidd5QcUfKX8JyA3kwUyXIJJnKNZVwf
+      m5H+7Nby46pZ5cx8+75Zni/FCMAzB6zNq+tq06Xddfhg9D6dJrNJdvltPN7ZaMkI
+      VgVJBYljoI76W78wkbhjMiEBUbLdJ0v4i4W82Bb9YhZ5uqxlRWRgI2vSTEfvBbl+
+      zcnRXMpBQ7p/x0yR8UpuZRcl5u6FtnRC31XVC6RnUREPJiGXmjLdWg2I7ZdKa/vM
+      uKwQb7pYKIfGb7l1BsYZYfog8Bps9sjAm0zM8wIDAQABAoIBAQCQeiTJMC3FGwhN
+      g+IwF/ujb7Khw5kjKJ8u6wBqqJ/pnSNuo+vdhA4z4zDVzGNTmcxOdrOmzcdNzHNE
+      WY+RGQ2bW8ANQdybmpnQU6wmOHCU082B5DadguSMZey8YulGkAIX+QE/vaW2NyLo
+      uQRddDfmfXEihBH+MeoRZNPuOZzG+qhz8+rRL/daqWIxVD7xZf1eA354hiT9xRnc
+      Xq+bxKprNhdm949QCXjuxpuKzsM87kIrJAlYLqyBbvYq8PKmCYJHt9FlwF/x3H0u
+      jjYcQF2BpvqeCxg3K/CNpOVVnREMFM+aHr5YbrffwCzO4fmLZ6E9cndfYSchMI0g
+      KHXMbmahAoGBAM9ejOZOhNNJjUwA2PI6Zre9zEq4JHlvgYVLWdccpNn0+5Iq93lZ
+      LWS8vbRJDcs8m/128Xc7GS9aBKa19BAaQGqWRx+TYrRDqhKQucez3enVgRQLGx4E
+      d8DWbb6NoNV8FCWtF6mlDfQbpdaDRRZ97voV0C7KhcvjhZYEUssq4BkNAoGBAMVU
+      vUVBR4ypmw7QLDP6zy+IJopGfIhrebCjQpVZAm4zrbkNmkxbple1wRfAQRkTS6Ah
+      hPRrFft4L6ATzawqtFXi4MOaFeqv/ROoyD0QpVuwGBrhHpc2j/8SFxTUm7E1XQ/n
+      BVw2iEawC6ujpAtrkj5Yrr4+N7+cr3f0An3qGv3/AoGAIiDri5PspGF8kb+p9OPL
+      t/3Su5Fm312MsYVfOdoK/5wkM0BDDoOwxt2RUzSawpItEiAbSYY+dN6Z2V4k1umb
+      JG+rMPUuz4A7Y2bSTJ27rhpnbgcN5XjSxLgFw9DHYZtULYc5V8BEdaJ/PrjIDBWZ
+      2Srx4mGOd6nweGopvipGS5kCgYEAmPeWfQAcqdK0S2heS7EKOMtvLNN1J/9AZwg3
+      zjQgqTLQYVpFGRoWuXlAhNvY2spVXn19Zkc41CYXrRyM3ACCqO1l1Ns2UCY6pam6
+      B3RG6ut31CZco1V9jHoGgHRLeLRoPrKUOiZfv4Qql9QTj3LE/CWc2Aa9CoE4mGEE
+      KX13jRsCgYEAwqB2h7EB0zcxvHKbtNbHkA9elRFSH1alXDHwwK2tgdOn7V8i4PoA
+      CpRdO65NPAPvIMn3Znc4G81xYapiy2Y2v0gQrpejSiiwfllWLNbL/r1DlauDyDeu
+      TOSuoEMa8kyE7XEh3CfV0+iuZY7M9U5vVY08xL94xih4V+/rjq6sV1U=
+      -----END RSA PRIVATE KEY-----
+
+  command: >-
+    --spring.datasource.username=uaa-user
+    --spring.datasource.password=uaa-pass
+    --spring.datasource.url=jdbc:mysql://uaa-db:3306/uaa?useSSL=true
+    --spring.profiles.active=cloud
