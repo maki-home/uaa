@@ -13,4 +13,4 @@ outputs:
 run:
   path: bash
   args:
-    - repo-ci/ci/tasks/bump-to-release-version.sh
+    - uaa-ci/ci/tasks/bump-to-release-version.sh
