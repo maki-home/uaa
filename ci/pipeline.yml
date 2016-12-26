@@ -1,23 +1,69 @@
 ---
 resources:
-  - name: uaa-repo
+  - name: uaa-repo-prod
     type: git
     source:
-      uri: https://github.com/maki-home/uaa.git
+      uri: git@github.com:maki-home/uaa.git
       branch: master
+      private_key: {{github-private-key}}
+  - name: uaa-repo-staging
+    type: git
+    source:
+      uri: git@github.com:maki-home/uaa.git
+      branch: release
+      private_key: {{github-private-key}}
+  - name: uaa-repo-dev
+    type: git
+    source:
+      uri: git@github.com:maki-home/uaa.git
+      branch: develop
+      private_key: {{github-private-key}}
+  - name: uaa-ci
+    type: git
+    source:
+      uri: git@github.com:maki-home/uaa.git
+      branch: develop
+      private_key: {{github-private-key}}
+  - name: uaa-version
+    type: semver
+    source:
+      uri: git@github.com:maki-home/uaa-version.git
+      branch: master
+      private_key: {{github-private-key}}
+      file: version
+      driver: git
+      initial_version: 0.5.0
   - name: utils
     type: git
     source:
       uri: https://github.com/maki-home/concourse-utils
       branch: master
-  - name: cf
+  - name: cf-prod
     type: cf
     source:
       api: {{cf-api}}
       username: {{cf-username}}
       password: {{cf-password}}
       organization: {{cf-org}}
-      space: {{cf-space}}
+      space: home
+      skip_cert_check: true
+  - name: cf-staging
+    type: cf
+    source:
+      api: {{cf-api}}
+      username: {{cf-username}}
+      password: {{cf-password}}
+      organization: {{cf-org}}
+      space: home-staging
+      skip_cert_check: true
+  - name: cf-dev
+    type: cf
+    source:
+      api: {{cf-api}}
+      username: {{cf-username}}
+      password: {{cf-password}}
+      organization: {{cf-org}}
+      space: home-dev
       skip_cert_check: true
   - name: m2
     type: docker-image
@@ -31,151 +77,228 @@ resources:
       password: {{docker-password}}
       email: {{docker-email}}
 jobs:
-  - name: uaa-unit-test-server
+  ############# Dev #############
+  - name: uaa-unit-test-dev
     plan:
       - aggregate:
         - get: uaa-repo
+          resource: uaa-repo-dev
           trigger: true
+        - get: uaa-ci
         - get: utils
         - get: m2
       - task: unit
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: making/alpine-java-bash-git
-          inputs:
-            - name: uaa-repo
-            - name: utils
-            - name: m2
-          run:
-            path: sh
-            args:
-            - -c
-            - |
-              utils/scripts/add-repos-in-pom-xml.sh uaa-repo && \
-              uaa-repo/ci/tasks/unit.sh uaa-repo/uaa-server
-          params:
-            _JAVA_OPTIONS: -Duser.timezone=Asia/Tokyo -Duser.language=ja -Duser.country=JP -Djava.security.egd=file:/dev/./urandom
-  - name: uaa-unit-test-client
+        file: uaa-ci/ci/tasks/uaa-unit-test.yml
+  - name: uaa-deploy-to-nexus-dev
     plan:
       - aggregate:
         - get: uaa-repo
-          trigger: true
-        - get: utils
-        - get: m2
-      - task: unit
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: making/alpine-java-bash-git
-          inputs:
-            - name: uaa-repo
-            - name: utils
-            - name: m2
-          run:
-            path: sh
-            args:
-            - -c
-            - |
-              utils/scripts/add-repos-in-pom-xml.sh uaa-repo && \
-              uaa-repo/ci/tasks/unit.sh uaa-repo/uaa-client
-          params:
-            _JAVA_OPTIONS: -Duser.timezone=Asia/Tokyo -Duser.language=ja -Duser.country=JP -Djava.security.egd=file:/dev/./urandom
-  - name: uaa-deploy-to-nexus
-    plan:
-      - aggregate:
-        - get: uaa-repo
+          resource: uaa-repo-dev
           trigger: true
           passed:
-          - uaa-unit-test-server
-          - uaa-unit-test-client
+          - uaa-unit-test-dev
+        - get: uaa-ci
         - get: utils
         - get: m2
       - task: deploy
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: making/alpine-java-bash-git
-          inputs:
-            - name: uaa-repo
-            - name: utils
-            - name: m2
-          outputs:
-            - name: output
-          run:
-            path: sh
-            args:
-            - -c
-            - |
-              utils/scripts/add-repos-in-pom-xml.sh uaa-repo && \
-              utils/scripts/add-distribution-management-in-pom-xml.sh uaa-repo && \
-              utils/scripts/generate-settings-xml.sh {{nexus-username}} {{nexus-password}} uaa-repo && \
-              uaa-repo/ci/tasks/deploy.sh uaa-repo
-  - name: uaa-deploy-to-cf
+        file: uaa-ci/ci/tasks/uaa-deploy-to-nexus.yml
+        params:
+          NEXUS_USERNAME: {{nexus-username}}
+          NEXUS_PASSWORD: {{nexus-password}}
+  - name: uaa-deploy-to-cf-dev
     plan:
       - aggregate:
         - get: uaa-repo
+          resource: uaa-repo-dev
           trigger: true
-          passed: [ uaa-deploy-to-nexus ]
+          passed:
+          - uaa-deploy-to-nexus-dev
+        - get: uaa-version
+        - get: uaa-ci
         - get: utils
       - task: download
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: maven
-          inputs:
-            - name: uaa-repo
-            - name: utils
-          outputs:
-            - name: output
-          run:
-            path: sh
-            args:
-            - -c
-            - |
-              utils/scripts/generate-download-artifact-xml.sh am.ik.home uaa-server 0.0.1-SNAPSHOT output && \
-              mvn -f output/download-artifact.xml validate
-      - put: cf
+        file: uaa-ci/ci/tasks/uaa-download-snapshot.yml
+      - put: cf-dev
+        params:
+          manifest: uaa-repo/uaa-server/manifest-pez-dev.yml
+          path: output/app.jar
+          current_app_name: home-uaa-dev
+  ############# Staging #############
+  - name: uaa-unit-test-staging
+    plan:
+      - aggregate:
+        - get: uaa-repo
+          resource: uaa-repo-staging
+          trigger: true
+        - get: uaa-ci
+        - get: utils
+        - get: m2
+      - task: unit
+        file: uaa-ci/ci/tasks/uaa-unit-test.yml
+  - name: uaa-deploy-to-nexus-staging
+    plan:
+      - aggregate:
+        - get: uaa-repo
+          resource: uaa-repo-staging
+          trigger: true
+          passed:
+          - uaa-unit-test-staging
+        - get: uaa-ci
+        - get: utils
+        - get: m2
+      - task: deploy
+        file: uaa-ci/ci/tasks/uaa-deploy-to-nexus.yml
+        params:
+          NEXUS_USERNAME: {{nexus-username}}
+          NEXUS_PASSWORD: {{nexus-password}}
+  - name: uaa-deploy-to-cf-staging
+    plan:
+      - aggregate:
+        - get: uaa-repo
+          resource: uaa-repo-staging
+          trigger: true
+          passed:
+          - uaa-deploy-to-nexus-staging
+        - get: uaa-version
+        - get: uaa-ci
+        - get: utils
+      - task: download
+        file: uaa-ci/ci/tasks/uaa-download-snapshot.yml
+      - put: cf-staging
+        params:
+          manifest: uaa-repo/uaa-server/manifest-pez-staging.yml
+          path: output/app.jar
+          current_app_name: home-uaa-staging
+  ############# Prod #############
+  - name: merge-release-to-master
+    public: true
+    plan:
+      - aggregate:
+        - get: uaa-repo
+          resource: uaa-repo-prod
+        - get: uaa-repo-staging
+          passed:
+          - uaa-deploy-to-cf-staging
+        - get: uaa-ci
+      - task: merge-release-to-master
+        file: uaa-ci/ci/tasks/uaa-merge-release-to-master.yml
+        params:
+          GIT_EMAIL: {{git-email}}
+          GIT_NAME: {{git-name}}
+      - put: uaa-repo-prod
+        params:
+          repository: master-out
+  - name: uaa-unit-test-prod
+    plan:
+      - aggregate:
+        - get: uaa-repo
+          resource: uaa-repo-prod
+          trigger: true
+          passed:
+          - merge-release-to-master
+        - get: uaa-ci
+        - get: utils
+        - get: m2
+      - task: unit
+        file: uaa-ci/ci/tasks/uaa-unit-test.yml
+  - name: tag-master
+    public: true
+    plan:
+      - aggregate:
+        - get: uaa-repo
+          resource: uaa-repo-prod
+          passed: [ uaa-unit-test-prod ]
+          trigger: true
+        - get: uaa-ci
+        - get: uaa-version
+        - get: utils
+        - get: m2
+      - task: bump-to-release-version
+        file: uaa-ci/ci/tasks/uaa-bump-to-release-version.yml
+        params:
+          GIT_EMAIL: {{git-email}}
+          GIT_NAME: {{git-name}}
+      - put: uaa-repo-prod
+        params:
+          repository: master-out
+          tag: uaa-version/number
+  - name: uaa-deploy-to-nexus-prod
+    plan:
+      - aggregate:
+        - get: uaa-repo
+          resource: uaa-repo-prod
+          trigger: true
+          passed:
+          - tag-master
+        - get: uaa-ci
+        - get: utils
+        - get: m2
+      - task: deploy
+        file: uaa-ci/ci/tasks/uaa-deploy-to-nexus.yml
+        params:
+          NEXUS_USERNAME: {{nexus-username}}
+          NEXUS_PASSWORD: {{nexus-password}}
+  - name: uaa-deploy-to-cf-prod
+    plan:
+      - aggregate:
+        - get: uaa-repo
+          resource: uaa-repo-prod
+          trigger: true
+          passed:
+          - uaa-deploy-to-nexus-prod
+        - get: uaa-version
+        - get: uaa-ci
+        - get: utils
+      - task: download
+        file: uaa-ci/ci/tasks/uaa-download-release.yml
+      - put: cf-prod
         params:
           manifest: uaa-repo/uaa-server/manifest-pez.yml
           path: output/app.jar
           current_app_name: home-uaa
-  - name: uaa-deploy-to-dockerhub
+  - name: uaa-deploy-to-dockerhub-prod
     plan:
       - aggregate:
         - get: uaa-repo
+          resource: uaa-repo-prod
           trigger: true
-          passed: [ uaa-deploy-to-nexus ]
+          passed:
+          - uaa-deploy-to-nexus-prod
+        - get: uaa-version
+        - get: uaa-ci
         - get: utils
       - task: download
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: maven
-          inputs:
-            - name: uaa-repo
-            - name: utils
-          outputs:
-            - name: output
-          run:
-            path: sh
-            args:
-            - -c
-            - |
-              utils/scripts/generate-download-artifact-xml.sh am.ik.home uaa-server 0.0.1-SNAPSHOT output && \
-              mvn -f output/download-artifact.xml validate
+        file: uaa-ci/ci/tasks/uaa-download-release.yml
       - put: dockerhub
         params:
           build: .
           dockerfile: uaa-repo/uaa-server/Dockerfile
           tag_as_latest: true
+          tag: uaa-version/number
+  - name: bump-to-next-develop-version
+    plan:
+      - aggregate:
+        - get: uaa-repo
+          resource: uaa-repo-dev
+        - get: uaa-repo-prod
+          passed:
+          - uaa-deploy-to-cf-prod
+          - uaa-deploy-to-dockerhub-prod
+          trigger: true
+        - get: uaa-version
+          params:
+            bump: minor
+        - get: uaa-ci
+        - get: m2
+      - task: bump-to-next-develop-version
+        file: uaa-ci/ci/tasks/uaa-bump-to-next-develop-version.yml
+        params:
+          GIT_EMAIL: {{git-email}}
+          GIT_NAME: {{git-name}}
+      - put: uaa-repo-dev
+        resource: uaa-repo-dev
+        params:
+          repository: develop-out
+      - put: uaa-version
+        params:
+          file: uaa-version/number
