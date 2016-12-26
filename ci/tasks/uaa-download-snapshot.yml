@@ -1,0 +1,19 @@
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: maven
+inputs:
+  - name: uaa-repo
+  - name: uaa-version
+  - name: utils
+outputs:
+  - name: output
+run:
+  path: sh
+  args:
+  - -c
+  - |
+    VERSION=`cat uaa-version/number`-SNAPSHOT && \
+    utils/scripts/generate-download-artifact-xml.sh am.ik.home uaa-server ${VERSION} output && \
+    mvn -f output/download-artifact.xml validate
