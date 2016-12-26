@@ -10,7 +10,7 @@ MESSAGE="[Concourse CI] Bump to Next Development Version ($VERSION)"
 shopt -s dotglob
 mv -f uaa-repo-staging/* release-out/
 cd release-out
-git remote add -f prod $BASEDIR/uaa-prod
+git remote add -f prod $BASEDIR/uaa-repo-prod
 git merge --no-edit prod/master
 echo "Bump to $VERSION"
 ./mvnw versions:set -DnewVersion=${VERSION} -DallowSnapshots -Dmaven.repo.local=$M2REPO
