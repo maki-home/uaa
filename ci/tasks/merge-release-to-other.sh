@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 BASEDIR=`pwd`
 shopt -s dotglob

@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 BASEDIR=`pwd`
 M2REPO=$BASEDIR/m2/rootfs/opt/m2
