@@ -1,0 +1,11 @@
+---
+applications:
+  - name: home-uaa-dev
+    memory: 1g
+    instances: 1
+    path: target/uaa-0.0.1-SNAPSHOT.jar
+    buildpack: java_buildpack_offline
+    domains:
+      - cfapps.pez.pivotal.io
+    services:
+    - uaa-db-dev
