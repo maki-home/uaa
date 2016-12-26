@@ -174,20 +174,20 @@ jobs:
     public: true
     plan:
       - aggregate:
-        - get: uaa-repo
+        - get: uaa-repo-other
           resource: uaa-repo-prod
         - get: uaa-repo-staging
           passed:
           - uaa-deploy-to-cf-staging
         - get: uaa-ci
       - task: merge-release-to-master
-        file: uaa-ci/ci/tasks/uaa-merge-release-to-master.yml
+        file: uaa-ci/ci/tasks/uaa-merge-release-to-other.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
       - put: uaa-repo-prod
         params:
-          repository: master-out
+          repository: other-out
   - name: uaa-unit-test-prod
     plan:
       - aggregate:
@@ -278,8 +278,7 @@ jobs:
   - name: bump-to-next-minor-version
     plan:
       - aggregate:
-        - get: uaa-repo
-          resource: uaa-repo-dev
+        - get: uaa-repo-staging
         - get: uaa-repo-prod
           passed:
           - uaa-deploy-to-cf-prod
@@ -295,18 +294,33 @@ jobs:
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
-      - put: uaa-repo-dev
-        resource: uaa-repo-dev
+      - put: uaa-repo-prod
         params:
-          repository: develop-out
+          repository: release-out
       - put: uaa-version
         params:
           file: uaa-version/number
+  - name: merge-release-to-develop-for-minor
+    plan:
+      - aggregate:
+        - get: uaa-repo-other
+          resource: uaa-repo-dev
+        - get: uaa-repo-staging
+          passed:
+          - bump-to-next-minor-version
+          trigger: true
+      - task: merge-release-to-develop
+        file: repo-release/ci/tasks/uaa-merge-release-to-other.yml
+        params:
+          GIT_EMAIL: {{git-email}}
+          GIT_NAME: {{git-name}}
+      - put: uaa-repo-dev
+        params:
+          repository: other-out
   - name: bump-to-next-patch-version
     plan:
       - aggregate:
-        - get: uaa-repo
-          resource: uaa-repo-dev
+        - get: uaa-repo-staging
         - get: uaa-repo-prod
           passed:
           - tag-master
@@ -320,10 +334,26 @@ jobs:
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
-      - put: uaa-repo-dev
-        resource: uaa-repo-dev
+      - put: uaa-repo-prod
         params:
-          repository: develop-out
+          repository: release-out
       - put: uaa-version
         params:
           file: uaa-version/number
+  - name: merge-release-to-develop-for-patch
+    plan:
+      - aggregate:
+        - get: uaa-repo-other
+          resource: uaa-repo-dev
+        - get: uaa-repo-staging
+          passed:
+          - bump-to-next-patch-version
+          trigger: true
+      - task: merge-release-to-develop
+        file: repo-release/ci/tasks/uaa-merge-release-to-other.yml
+        params:
+          GIT_EMAIL: {{git-email}}
+          GIT_NAME: {{git-name}}
+      - put: uaa-repo-dev
+        params:
+          repository: other-out
