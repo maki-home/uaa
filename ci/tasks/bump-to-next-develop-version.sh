@@ -3,7 +3,7 @@
 BASEDIR=`pwd`
 M2REPO=$BASEDIR/m2/rootfs/opt/m2
 echo "M2REPO=$M2REPO"
-VERSION=`cat version/number`-SNAPSHOT
+VERSION=`cat uaa-version/number`-SNAPSHOT
 MESSAGE="[Concourse CI] Bump to Next Development Version ($VERSION)"
 
 shopt -s dotglob
