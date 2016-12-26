@@ -1,0 +1,21 @@
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: making/alpine-java-bash-git
+inputs:
+  - name: uaa-repo
+  - name: uaa-ci
+  - name: utils
+  - name: m2
+outputs:
+  - name: output
+run:
+  path: sh
+  args:
+  - -c
+  - |
+    utils/scripts/add-repos-in-pom-xml.sh uaa-repo && \
+    utils/scripts/add-distribution-management-in-pom-xml.sh uaa-repo && \
+    utils/scripts/generate-settings-xml.sh {{nexus-username}} {{nexus-password}} uaa-repo && \
+    uaa-ci/ci/tasks/deploy.sh uaa-repo
