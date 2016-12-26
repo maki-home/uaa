@@ -275,7 +275,7 @@ jobs:
           dockerfile: uaa-repo/uaa-server/Dockerfile
           tag_as_latest: true
           tag: uaa-version/number
-  - name: bump-to-next-develop-version
+  - name: bump-to-next-minor-version
     plan:
       - aggregate:
         - get: uaa-repo
@@ -288,6 +288,31 @@ jobs:
         - get: uaa-version
           params:
             bump: minor
+        - get: uaa-ci
+        - get: m2
+      - task: bump-to-next-minor-version
+        file: uaa-ci/ci/tasks/uaa-bump-to-next-develop-version.yml
+        params:
+          GIT_EMAIL: {{git-email}}
+          GIT_NAME: {{git-name}}
+      - put: uaa-repo-dev
+        resource: uaa-repo-dev
+        params:
+          repository: develop-out
+      - put: uaa-version
+        params:
+          file: uaa-version/number
+  - name: bump-to-next-patch-version
+    plan:
+      - aggregate:
+        - get: uaa-repo
+          resource: uaa-repo-dev
+        - get: uaa-repo-prod
+          passed:
+          - tag-master
+        - get: uaa-version
+          params:
+            bump: patch
         - get: uaa-ci
         - get: m2
       - task: bump-to-next-develop-version
