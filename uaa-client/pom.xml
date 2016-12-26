@@ -5,11 +5,7 @@
     <parent>
         <artifactId>uaa-parent</artifactId>
         <groupId>am.ik.home</groupId>
-<<<<<<< HEAD
         <version>0.9.0-SNAPSHOT</version>
-=======
-        <version>0.8.0</version>
->>>>>>> 0a4e3c670fabe6d7158f4c7ca00d0dcdc3e10b1c
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
