@@ -13,4 +13,4 @@ outputs:
 run:
   path: /bin/bash
   args:
-  - repo-release/ci/tasks/merge-release-to-master.sh
+  - uaa-ci/ci/tasks/merge-release-to-master.sh
