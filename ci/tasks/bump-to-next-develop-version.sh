@@ -7,8 +7,8 @@ VERSION=`cat uaa-version/number`-SNAPSHOT
 MESSAGE="[Concourse CI] Bump to Next Development Version ($VERSION)"
 
 shopt -s dotglob
-mv -f uaa-repo/* develop-out/
-cd develop-out
+mv -f uaa-repo-staging/* release-out/
+cd release-out
 git remote add -f prod $BASEDIR/uaa-prod
 git merge --no-edit prod/master
 echo "Bump to $VERSION"

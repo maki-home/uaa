@@ -5,12 +5,12 @@ image_resource:
     repository: making/alpine-java-bash-git
 inputs:
   - name: uaa-version
-  - name: uaa-repo
+  - name: uaa-repo-staging
   - name: uaa-repo-prod
   - name: uaa-ci
   - name: m2
 outputs:
-  - name: develop-out
+  - name: release-out
 run:
   path: bash
   args:
