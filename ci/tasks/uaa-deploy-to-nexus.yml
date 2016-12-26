@@ -17,5 +17,5 @@ run:
   - |
     utils/scripts/add-repos-in-pom-xml.sh uaa-repo && \
     utils/scripts/add-distribution-management-in-pom-xml.sh uaa-repo && \
-    utils/scripts/generate-settings-xml.sh {{nexus-username}} {{nexus-password}} uaa-repo && \
+    utils/scripts/generate-settings-xml.sh ${NEXUS_USERNAME} ${NEXUS_PASSWORD} uaa-repo && \
     uaa-ci/ci/tasks/deploy.sh uaa-repo
