@@ -7,6 +7,7 @@ import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.assertj.core.util.Sets;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -23,9 +24,14 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import am.ik.home.app.App;
+import am.ik.home.app.AppGrantType;
+import am.ik.home.app.AppRepository;
+import am.ik.home.app.AppRole;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
-		"spring.datasource.url=jdbc:h2:mem:test" })
+		"spring.datasource.url=jdbc:h2:mem:test;DB_CLOSE_ON_EXIT=FALSE" })
 public class UaaApplicationTests {
 
 	@Rule
@@ -35,6 +41,8 @@ public class UaaApplicationTests {
 	RestTemplate restTemplate = new RestTemplate();
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+	@Autowired
+	AppRepository appRepository;
 
 	String getBasic(String appName) {
 		String ret = jdbcTemplate.queryForObject(
@@ -59,8 +67,8 @@ public class UaaApplicationTests {
 		assertThat(res1.get("access_token").asText()).isNotEmpty();
 		assertThat(res1.get("refresh_token").asText()).isNotEmpty();
 		assertThat(res1.get("scope").asText().split(" ")).hasSize(2);
-		assertThat(res1.get("scope").asText().split(" ")).contains("read");
-		assertThat(res1.get("scope").asText().split(" ")).contains("write");
+		assertThat(res1.get("scope").asText().split(" ")).contains("member.read");
+		assertThat(res1.get("scope").asText().split(" ")).contains("member.write");
 		assertThat(res1.get("expires_in").asLong())
 				.isLessThan(TimeUnit.DAYS.toSeconds(1));
 		assertThat(res1.get("family_name").asText()).isEqualTo("Maki");
@@ -85,7 +93,7 @@ public class UaaApplicationTests {
 
 		assertThat(res1.get("access_token").asText()).isNotEmpty();
 		assertThat(res1.get("refresh_token").asText()).isNotEmpty();
-		assertThat(res1.get("scope").asText()).isEqualTo("read");
+		assertThat(res1.get("scope").asText()).isEqualTo("member.read");
 		assertThat(res1.get("expires_in").asLong())
 				.isLessThan(TimeUnit.HOURS.toSeconds(1));
 		assertThat(res1.get("family_name").asText()).isEqualTo("Maki");
@@ -275,5 +283,54 @@ public class UaaApplicationTests {
 						.toUri())
 				.header("Authorization", "Bearer " + accessToken).build();
 		restTemplate.exchange(req2, JsonNode.class).getBody();
+	}
+
+	@Test
+	public void testGetMemberByAdminClient() {
+		App adminClient = App.builder().appName("AdminClient").appSecret("admin")
+				.appId(UUID.randomUUID().toString()).appUrl("http://admin.example.com")
+				.grantTypes(Sets.newLinkedHashSet(AppGrantType.PASSWORD))
+				.accessTokenValiditySeconds(100).refreshTokenValiditySeconds(100)
+				.redirectUrls(Sets.newLinkedHashSet("http://admin.example.com/login"))
+				.roles(Sets.newLinkedHashSet(AppRole.TRUSTED_CLIENT))
+				.scopes(Sets.newLinkedHashSet("admin.read", "admin.write")).build();
+		adminClient = appRepository.saveAndFlush(adminClient);
+
+		// begin test
+
+		RequestEntity<?> req1 = RequestEntity
+				.post(UriComponentsBuilder.fromUriString(uri)
+						.pathSegment("oauth", "token")
+						.queryParam("grant_type", "password")
+						.queryParam("username", "maki@example.com")
+						.queryParam("password", "demo").build().toUri())
+				.header("Authorization", "Basic " + getBasic("AdminClient")).build();
+
+		// issue token
+		JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
+		String accessToken = res1.get("access_token").asText();
+
+		// get member
+		RequestEntity<?> req3 = RequestEntity
+				.get(UriComponentsBuilder.fromUriString(uri)
+						.pathSegment("v1", "members", "search", "findByIds")
+						.queryParam("ids", res1.get("user_id").asText())
+						.queryParam("ids", "00000000-0000-0000-0000-000000000000").build()
+						.toUri())
+				.header("Authorization", "Bearer " + accessToken).build();
+		JsonNode res3 = restTemplate.exchange(req3, JsonNode.class).getBody();
+		assertThat(res3.get("_embedded").get("members")).hasSize(1);
+		assertThat(res3.get("_embedded").get("members").get(0).get("memberId").asText())
+				.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
+		assertThat(res3.get("_embedded").get("members").get(0).get("givenName").asText())
+				.isEqualTo("Toshiaki");
+		assertThat(res3.get("_embedded").get("members").get(0).get("familyName").asText())
+				.isEqualTo("Maki");
+		assertThat(res3.get("_embedded").get("members").get(0).get("email").asText())
+				.isEqualTo("maki@example.com");
+
+		// end test
+
+		appRepository.delete(adminClient);
 	}
 }
