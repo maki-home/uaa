@@ -21,6 +21,7 @@
     <modules>
         <module>uaa-server</module>
         <module>uaa-client</module>
+        <module>uaa-integration-test</module>
     </modules>
 
     <properties>

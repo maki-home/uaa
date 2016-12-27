@@ -117,6 +117,18 @@ jobs:
           manifest: repo/uaa-server/manifest-pez-dev.yml
           path: output/app.jar
           current_app_name: home-uaa-dev
+  - name: integration-test-dev
+    plan:
+      - aggregate:
+        - get: repo
+          resource: repo-dev
+          trigger: true
+          passed:
+          - deploy-to-cf-dev
+        - get: utils
+        - get: m2
+      - task: it
+        file: utils/tasks/integration-test.yml
   ############# Staging #############
   - name: unit-test-staging
     plan:
@@ -163,6 +175,18 @@ jobs:
           manifest: repo/uaa-server/manifest-pez-staging.yml
           path: output/app.jar
           current_app_name: home-uaa-staging
+  - name: integration-test-staging
+    plan:
+      - aggregate:
+        - get: repo
+          resource: repo-staging
+          trigger: true
+          passed:
+          - deploy-to-cf-staging
+        - get: utils
+        - get: m2
+      - task: it
+        file: utils/tasks/integration-test.yml
   ############# Prod #############
   - name: merge-release-to-master
     public: true
@@ -172,7 +196,7 @@ jobs:
           resource: repo-prod
         - get: repo-staging
           passed:
-          - deploy-to-cf-staging
+          - integration-test-staging
         - get: utils
       - task: merge-release-to-master
         file: utils/tasks/merge-release-to-other.yml
