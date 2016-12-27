@@ -118,6 +118,9 @@ jobs:
         - get: utils
       - task: download
         file: repo-ci/ci/tasks/download-snapshot.yml
+        params:
+          GROUP_ID: am.ik.home
+          ARTIFACT_ID: uaa-server
       - put: cf-dev
         params:
           manifest: repo/uaa-server/manifest-pez-dev.yml
@@ -164,6 +167,9 @@ jobs:
         - get: utils
       - task: download
         file: repo-ci/ci/tasks/download-snapshot.yml
+        params:
+          GROUP_ID: am.ik.home
+          ARTIFACT_ID: uaa-server
       - put: cf-staging
         params:
           manifest: repo/uaa-server/manifest-pez-staging.yml
@@ -251,6 +257,9 @@ jobs:
         - get: utils
       - task: download
         file: repo-ci/ci/tasks/download-release.yml
+        params:
+          GROUP_ID: am.ik.home
+          ARTIFACT_ID: uaa-server
       - put: cf-prod
         params:
           manifest: repo/uaa-server/manifest-pez.yml
@@ -269,6 +278,9 @@ jobs:
         - get: utils
       - task: download
         file: repo-ci/ci/tasks/download-release.yml
+        params:
+          GROUP_ID: am.ik.home
+          ARTIFACT_ID: uaa-server
       - put: dockerhub
         params:
           build: .

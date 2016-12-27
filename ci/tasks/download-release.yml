@@ -14,5 +14,5 @@ run:
   - -c
   - |
     VERSION=`cat repo-version/number` && \
-    utils/scripts/generate-download-artifact-xml.sh am.ik.home uaa-server ${VERSION} output && \
+    utils/scripts/generate-download-artifact-xml.sh ${GROUP_ID} ${ARTIFACT_ID} ${VERSION} output && \
     mvn -f output/download-artifact.xml validate
