@@ -127,7 +127,7 @@ public class UaaApplicationTests {
 
         // get member
         RequestEntity<?> req2 = RequestEntity.get(UriComponentsBuilder.fromUriString(uri)
-                .pathSegment("api", "members", "search", "findByEmail")
+                .pathSegment("v1", "members", "search", "findByEmail")
                 .queryParam("email", "maki@example.com")
                 .build().toUri())
                 .header("Authorization", "Bearer " + accessToken)
@@ -156,7 +156,7 @@ public class UaaApplicationTests {
 
         // get member
         RequestEntity<?> req2 = RequestEntity.get(UriComponentsBuilder.fromUriString(uri)
-                .pathSegment("api", "members", "search", "findByEmail")
+                .pathSegment("v1", "members", "search", "findByEmail")
                 .queryParam("email", "maki@example.com")
                 .build().toUri())
                 .header("Authorization", "Bearer " + accessToken)
@@ -185,7 +185,7 @@ public class UaaApplicationTests {
 
         // get member
         RequestEntity<?> req3 = RequestEntity.get(UriComponentsBuilder.fromUriString(uri)
-                .pathSegment("api", "members", "search", "findByIds")
+                .pathSegment("v1", "members", "search", "findByIds")
                 .queryParam("ids", res1.get("user_id").asText())
                 .queryParam("ids", "00000000-0000-0000-0000-000000000000")
                 .build().toUri())
