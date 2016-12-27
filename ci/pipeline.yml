@@ -88,7 +88,7 @@ jobs:
         - get: utils
         - get: m2
       - task: unit
-        file: repo-ci/ci/tasks/uaa-unit-test.yml
+        file: repo-ci/ci/tasks/unit-test.yml
   - name: uaa-deploy-to-nexus-dev
     plan:
       - aggregate:
@@ -101,7 +101,7 @@ jobs:
         - get: utils
         - get: m2
       - task: deploy
-        file: repo-ci/ci/tasks/uaa-deploy-to-nexus.yml
+        file: repo-ci/ci/tasks/deploy-to-nexus.yml
         params:
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
@@ -117,7 +117,7 @@ jobs:
         - get: repo-ci
         - get: utils
       - task: download
-        file: repo-ci/ci/tasks/uaa-download-snapshot.yml
+        file: repo-ci/ci/tasks/download-snapshot.yml
       - put: cf-dev
         params:
           manifest: repo/uaa-server/manifest-pez-dev.yml
@@ -134,7 +134,7 @@ jobs:
         - get: utils
         - get: m2
       - task: unit
-        file: repo-ci/ci/tasks/uaa-unit-test.yml
+        file: repo-ci/ci/tasks/unit-test.yml
   - name: uaa-deploy-to-nexus-staging
     plan:
       - aggregate:
@@ -147,7 +147,7 @@ jobs:
         - get: utils
         - get: m2
       - task: deploy
-        file: repo-ci/ci/tasks/uaa-deploy-to-nexus.yml
+        file: repo-ci/ci/tasks/deploy-to-nexus.yml
         params:
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
@@ -163,7 +163,7 @@ jobs:
         - get: repo-ci
         - get: utils
       - task: download
-        file: repo-ci/ci/tasks/uaa-download-snapshot.yml
+        file: repo-ci/ci/tasks/download-snapshot.yml
       - put: cf-staging
         params:
           manifest: repo/uaa-server/manifest-pez-staging.yml
@@ -181,7 +181,7 @@ jobs:
           - uaa-deploy-to-cf-staging
         - get: repo-ci
       - task: merge-release-to-master
-        file: repo-ci/ci/tasks/uaa-merge-release-to-other.yml
+        file: repo-ci/ci/tasks/merge-release-to-other.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -200,7 +200,7 @@ jobs:
         - get: utils
         - get: m2
       - task: unit
-        file: repo-ci/ci/tasks/uaa-unit-test.yml
+        file: repo-ci/ci/tasks/unit-test.yml
   - name: tag-master
     public: true
     plan:
@@ -214,7 +214,7 @@ jobs:
         - get: utils
         - get: m2
       - task: bump-to-release-version
-        file: repo-ci/ci/tasks/uaa-bump-to-release-version.yml
+        file: repo-ci/ci/tasks/bump-to-release-version.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -234,7 +234,7 @@ jobs:
         - get: utils
         - get: m2
       - task: deploy
-        file: repo-ci/ci/tasks/uaa-deploy-to-nexus.yml
+        file: repo-ci/ci/tasks/deploy-to-nexus.yml
         params:
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
@@ -250,7 +250,7 @@ jobs:
         - get: repo-ci
         - get: utils
       - task: download
-        file: repo-ci/ci/tasks/uaa-download-release.yml
+        file: repo-ci/ci/tasks/download-release.yml
       - put: cf-prod
         params:
           manifest: repo/uaa-server/manifest-pez.yml
@@ -268,7 +268,7 @@ jobs:
         - get: repo-ci
         - get: utils
       - task: download
-        file: repo-ci/ci/tasks/uaa-download-release.yml
+        file: repo-ci/ci/tasks/download-release.yml
       - put: dockerhub
         params:
           build: .
@@ -290,7 +290,7 @@ jobs:
         - get: repo-ci
         - get: m2
       - task: bump-to-next-minor-version
-        file: repo-ci/ci/tasks/uaa-bump-to-next-develop-version.yml
+        file: repo-ci/ci/tasks/bump-to-next-develop-version.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -311,7 +311,7 @@ jobs:
           trigger: true
         - get: repo-ci
       - task: merge-release-to-develop
-        file: repo-ci/ci/tasks/uaa-merge-release-to-other.yml
+        file: repo-ci/ci/tasks/merge-release-to-other.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -331,7 +331,7 @@ jobs:
         - get: repo-ci
         - get: m2
       - task: bump-to-next-develop-version
-        file: repo-ci/ci/tasks/uaa-bump-to-next-develop-version.yml
+        file: repo-ci/ci/tasks/bump-to-next-develop-version.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -352,7 +352,7 @@ jobs:
           trigger: true
         - get: repo-ci
       - task: merge-release-to-develop
-        file: repo-ci/ci/tasks/uaa-merge-release-to-other.yml
+        file: repo-ci/ci/tasks/merge-release-to-other.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -373,7 +373,7 @@ jobs:
         - get: repo-ci
         - get: m2
       - task: bump-to-next-major-version
-        file: repo-ci/ci/tasks/uaa-bump-to-next-develop-version.yml
+        file: repo-ci/ci/tasks/bump-to-next-develop-version.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -394,7 +394,7 @@ jobs:
           trigger: true
         - get: repo-ci
       - task: merge-release-to-develop
-        file: repo-ci/ci/tasks/uaa-merge-release-to-other.yml
+        file: repo-ci/ci/tasks/merge-release-to-other.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
