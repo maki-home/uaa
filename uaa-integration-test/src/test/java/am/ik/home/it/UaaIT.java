@@ -1,11 +1,11 @@
 package am.ik.home.it;
 
 import static java.util.Collections.singletonList;
+import static java.util.concurrent.CompletableFuture.allOf;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Base64;
 import java.util.Iterator;
-import java.util.concurrent.CompletableFuture;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -203,14 +203,13 @@ public class UaaIT {
 		MemberClient.Async memberClient = new AsyncMemberClientImpl(apiBase,
 				asyncRestTemplate);
 
-		CompletableFuture.allOf(memberClient
-				.findOne("00000000-0000-0000-0000-000000000000").thenAccept(member -> {
+		allOf(memberClient.findOne("00000000-0000-0000-0000-000000000000")
+				.thenAccept(member -> {
 					assertThatMemberIsMaki(member.getContent());
 				}), memberClient.findOne("00000000-0000-0000-0000-000000000001")
 						.thenAccept(member -> {
 							assertThatMemberIsDemo(member.getContent());
-						}))
-				.get();
+						})).get();
 	}
 
 	@Test
@@ -222,12 +221,11 @@ public class UaaIT {
 		MemberClient.Async memberClient = new AsyncMemberClientImpl(apiBase,
 				asyncRestTemplate);
 
-		CompletableFuture
-				.allOf(memberClient.findByEmail("maki@example.com").thenAccept(member -> {
-					assertThatMemberIsMaki(member.getContent());
-				}), memberClient.findByEmail("demo@example.com").thenAccept(member -> {
-					assertThatMemberIsDemo(member.getContent());
-				})).get();
+		allOf(memberClient.findByEmail("maki@example.com").thenAccept(member -> {
+			assertThatMemberIsMaki(member.getContent());
+		}), memberClient.findByEmail("demo@example.com").thenAccept(member -> {
+			assertThatMemberIsDemo(member.getContent());
+		})).get();
 	}
 
 	@Test
@@ -239,22 +237,18 @@ public class UaaIT {
 		MemberClient.Async memberClient = new AsyncMemberClientImpl(apiBase,
 				asyncRestTemplate);
 
-		CompletableFuture
-				.allOf(memberClient
-						.findByIds("00000000-0000-0000-0000-000000000000",
-								"00000000-0000-0000-0000-000000000001")
+		allOf(memberClient.findByIds("00000000-0000-0000-0000-000000000000",
+				"00000000-0000-0000-0000-000000000001").thenAccept(members -> {
+					assertThat(members).hasSize(2);
+					Iterator<Member> iterator = members.iterator();
+					assertThatMemberIsDemo(iterator.next());
+					assertThatMemberIsMaki(iterator.next());
+				}), memberClient.findByIds("00000000-0000-0000-0000-000000000000")
 						.thenAccept(members -> {
-							assertThat(members).hasSize(2);
+							assertThat(members).hasSize(1);
 							Iterator<Member> iterator = members.iterator();
-							assertThatMemberIsDemo(iterator.next());
 							assertThatMemberIsMaki(iterator.next());
-						}), memberClient.findByIds("00000000-0000-0000-0000-000000000000")
-								.thenAccept(members -> {
-									assertThat(members).hasSize(1);
-									Iterator<Member> iterator = members.iterator();
-									assertThatMemberIsMaki(iterator.next());
-								}))
-				.get();
+						})).get();
 	}
 
 	@Test
