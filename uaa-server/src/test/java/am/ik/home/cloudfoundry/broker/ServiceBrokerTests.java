@@ -1,9 +1,13 @@
 package am.ik.home.cloudfoundry.broker;
 
-import am.ik.home.app.App;
-import am.ik.home.app.AppRepository;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.UUID;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +24,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.UUID;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.*;
+import am.ik.home.app.App;
+import am.ik.home.app.AppRepository;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
@@ -164,8 +166,7 @@ public class ServiceBrokerTests {
 		assertThat(app.getRedirectUrls()).isEmpty();
 
 		RequestEntity<UpdateServiceInstanceRequest> req2 = RequestEntity
-				.post(UriComponentsBuilder.fromHttpUrl(uri)
-						.queryParam("_method", "PATCH")
+				.post(UriComponentsBuilder.fromHttpUrl(uri).queryParam("_method", "PATCH")
 						.pathSegment("v2", "service_instances", serviceInstanceId).build()
 						.toUri())
 				.body(new UpdateServiceInstanceRequest(

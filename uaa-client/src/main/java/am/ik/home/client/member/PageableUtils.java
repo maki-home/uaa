@@ -5,7 +5,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 class PageableUtils {
 
-	static UriComponentsBuilder withPageable(UriComponentsBuilder builder, Pageable pageable) {
+	static UriComponentsBuilder withPageable(UriComponentsBuilder builder,
+			Pageable pageable) {
 		builder.queryParam("page", pageable.getPageNumber()).queryParam("size",
 				pageable.getPageSize());
 		if (pageable.getSort() != null) {
