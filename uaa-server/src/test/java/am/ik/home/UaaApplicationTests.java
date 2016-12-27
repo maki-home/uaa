@@ -59,8 +59,8 @@ public class UaaApplicationTests {
 		assertThat(res1.get("access_token").asText()).isNotEmpty();
 		assertThat(res1.get("refresh_token").asText()).isNotEmpty();
 		assertThat(res1.get("scope").asText().split(" ")).hasSize(2);
-		assertThat(res1.get("scope").asText().split(" ")).contains("read");
-		assertThat(res1.get("scope").asText().split(" ")).contains("write");
+		assertThat(res1.get("scope").asText().split(" ")).contains("member.read");
+		assertThat(res1.get("scope").asText().split(" ")).contains("member.write");
 		assertThat(res1.get("expires_in").asLong())
 				.isLessThan(TimeUnit.DAYS.toSeconds(1));
 		assertThat(res1.get("family_name").asText()).isEqualTo("Maki");
@@ -85,7 +85,7 @@ public class UaaApplicationTests {
 
 		assertThat(res1.get("access_token").asText()).isNotEmpty();
 		assertThat(res1.get("refresh_token").asText()).isNotEmpty();
-		assertThat(res1.get("scope").asText()).isEqualTo("read");
+		assertThat(res1.get("scope").asText()).isEqualTo("member.read");
 		assertThat(res1.get("expires_in").asLong())
 				.isLessThan(TimeUnit.HOURS.toSeconds(1));
 		assertThat(res1.get("family_name").asText()).isEqualTo("Maki");
