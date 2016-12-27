@@ -5,7 +5,6 @@ image_resource:
     repository: making/alpine-java-bash-git
 inputs:
   - name: repo
-  - name: repo-ci
   - name: utils
   - name: m2
 outputs:
@@ -18,4 +17,4 @@ run:
     utils/scripts/add-repos-in-pom-xml.sh repo && \
     utils/scripts/add-distribution-management-in-pom-xml.sh repo && \
     utils/scripts/generate-settings-xml.sh ${NEXUS_USERNAME} ${NEXUS_PASSWORD} repo && \
-    repo-ci/ci/tasks/deploy.sh repo
+    utils/scripts/mvn.sh deploy repo

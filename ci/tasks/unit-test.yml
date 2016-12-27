@@ -5,7 +5,6 @@ image_resource:
     repository: making/alpine-java-bash-git
 inputs:
   - name: repo
-  - name: repo-ci
   - name: utils
   - name: m2
 run:
@@ -14,6 +13,6 @@ run:
   - -c
   - |
     utils/scripts/add-repos-in-pom-xml.sh repo && \
-    repo-ci/ci/tasks/unit.sh repo
+    utils/scripts/mvn.sh test repo
 params:
   _JAVA_OPTIONS: -Duser.timezone=Asia/Tokyo -Duser.language=ja -Duser.country=JP -Djava.security.egd=file:/dev/./urandom
