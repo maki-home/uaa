@@ -174,9 +174,9 @@ public class UaaApplication {
 					.authorizeRequests().mvcMatchers("/userinfo")
 					.access("#oauth2.hasScope('openid')")
 					.antMatchers(HttpMethod.GET, "/v1/members/**")
-					.access("#oauth2.clientHasRole('ROLE_TRUSTED_CLIENT') and #oauth2.hasScope('member.read')")
+					.access("#oauth2.clientHasRole('ROLE_TRUSTED_CLIENT') and (#oauth2.hasScope('member.read') or #oauth2.hasScope('admin.read'))")
 					.antMatchers(HttpMethod.POST, "/v1/members/**")
-					.access("#oauth2.clientHasRole('ROLE_TRUSTED_CLIENT') and #oauth2.hasScope('member.write')");
+					.access("#oauth2.clientHasRole('ROLE_TRUSTED_CLIENT') and (#oauth2.hasScope('member.write') or #oauth2.hasScope('admin.write'))");
 		}
 	}
 }
