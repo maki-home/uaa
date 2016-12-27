@@ -78,7 +78,7 @@ resources:
       email: {{docker-email}}
 jobs:
   ############# Dev #############
-  - name: uaa-unit-test-dev
+  - name: unit-test-dev
     plan:
       - aggregate:
         - get: repo
@@ -89,14 +89,14 @@ jobs:
         - get: m2
       - task: unit
         file: repo-ci/ci/tasks/unit-test.yml
-  - name: uaa-deploy-to-nexus-dev
+  - name: deploy-to-nexus-dev
     plan:
       - aggregate:
         - get: repo
           resource: repo-dev
           trigger: true
           passed:
-          - uaa-unit-test-dev
+          - unit-test-dev
         - get: repo-ci
         - get: utils
         - get: m2
@@ -105,14 +105,14 @@ jobs:
         params:
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
-  - name: uaa-deploy-to-cf-dev
+  - name: deploy-to-cf-dev
     plan:
       - aggregate:
         - get: repo
           resource: repo-dev
           trigger: true
           passed:
-          - uaa-deploy-to-nexus-dev
+          - deploy-to-nexus-dev
         - get: repo-version
         - get: repo-ci
         - get: utils
@@ -124,7 +124,7 @@ jobs:
           path: output/app.jar
           current_app_name: home-uaa-dev
   ############# Staging #############
-  - name: uaa-unit-test-staging
+  - name: unit-test-staging
     plan:
       - aggregate:
         - get: repo
@@ -135,14 +135,14 @@ jobs:
         - get: m2
       - task: unit
         file: repo-ci/ci/tasks/unit-test.yml
-  - name: uaa-deploy-to-nexus-staging
+  - name: deploy-to-nexus-staging
     plan:
       - aggregate:
         - get: repo
           resource: repo-staging
           trigger: true
           passed:
-          - uaa-unit-test-staging
+          - unit-test-staging
         - get: repo-ci
         - get: utils
         - get: m2
@@ -151,14 +151,14 @@ jobs:
         params:
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
-  - name: uaa-deploy-to-cf-staging
+  - name: deploy-to-cf-staging
     plan:
       - aggregate:
         - get: repo
           resource: repo-staging
           trigger: true
           passed:
-          - uaa-deploy-to-nexus-staging
+          - deploy-to-nexus-staging
         - get: repo-version
         - get: repo-ci
         - get: utils
@@ -178,7 +178,7 @@ jobs:
           resource: repo-prod
         - get: repo-staging
           passed:
-          - uaa-deploy-to-cf-staging
+          - deploy-to-cf-staging
         - get: repo-ci
       - task: merge-release-to-master
         file: repo-ci/ci/tasks/merge-release-to-other.yml
@@ -188,7 +188,7 @@ jobs:
       - put: repo-prod
         params:
           repository: other-out
-  - name: uaa-unit-test-prod
+  - name: unit-test-prod
     plan:
       - aggregate:
         - get: repo
@@ -207,7 +207,7 @@ jobs:
       - aggregate:
         - get: repo-prod
           passed:
-          - uaa-unit-test-prod
+          - unit-test-prod
           trigger: true
         - get: repo-ci
         - get: repo-version
@@ -222,7 +222,7 @@ jobs:
         params:
           repository: master-out
           tag: repo-version/number
-  - name: uaa-deploy-to-nexus-prod
+  - name: deploy-to-nexus-prod
     plan:
       - aggregate:
         - get: repo
@@ -238,14 +238,14 @@ jobs:
         params:
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
-  - name: uaa-deploy-to-cf-prod
+  - name: deploy-to-cf-prod
     plan:
       - aggregate:
         - get: repo
           resource: repo-prod
           trigger: true
           passed:
-          - uaa-deploy-to-nexus-prod
+          - deploy-to-nexus-prod
         - get: repo-version
         - get: repo-ci
         - get: utils
@@ -256,14 +256,14 @@ jobs:
           manifest: repo/uaa-server/manifest-pez.yml
           path: output/app.jar
           current_app_name: home-uaa
-  - name: uaa-deploy-to-dockerhub-prod
+  - name: deploy-to-dockerhub-prod
     plan:
       - aggregate:
         - get: repo
           resource: repo-prod
           trigger: true
           passed:
-          - uaa-deploy-to-nexus-prod
+          - deploy-to-nexus-prod
         - get: repo-version
         - get: repo-ci
         - get: utils
@@ -281,8 +281,8 @@ jobs:
         - get: repo-staging
         - get: repo-prod
           passed:
-          - uaa-deploy-to-cf-prod
-          - uaa-deploy-to-dockerhub-prod
+          - deploy-to-cf-prod
+          - deploy-to-dockerhub-prod
           trigger: true
         - get: repo-version
           params:
@@ -365,8 +365,8 @@ jobs:
         - get: repo-staging
         - get: repo-prod
           passed:
-          - uaa-deploy-to-cf-prod
-          - uaa-deploy-to-dockerhub-prod
+          - deploy-to-cf-prod
+          - deploy-to-dockerhub-prod
         - get: repo-version
           params:
             bump: major
