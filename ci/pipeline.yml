@@ -18,12 +18,6 @@ resources:
       uri: git@github.com:maki-home/uaa.git
       branch: develop
       private_key: {{github-private-key}}
-  - name: repo-ci
-    type: git
-    source:
-      uri: git@github.com:maki-home/uaa.git
-      branch: develop
-      private_key: {{github-private-key}}
   - name: repo-version
     type: semver
     source:
@@ -84,11 +78,10 @@ jobs:
         - get: repo
           resource: repo-dev
           trigger: true
-        - get: repo-ci
         - get: utils
         - get: m2
       - task: unit
-        file: repo-ci/ci/tasks/unit-test.yml
+        file: utils/tasks/unit-test.yml
   - name: deploy-to-nexus-dev
     plan:
       - aggregate:
@@ -97,11 +90,10 @@ jobs:
           trigger: true
           passed:
           - unit-test-dev
-        - get: repo-ci
         - get: utils
         - get: m2
       - task: deploy
-        file: repo-ci/ci/tasks/deploy-to-nexus.yml
+        file: utils/tasks/deploy-to-nexus.yml
         params:
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
@@ -114,10 +106,9 @@ jobs:
           passed:
           - deploy-to-nexus-dev
         - get: repo-version
-        - get: repo-ci
         - get: utils
       - task: download
-        file: repo-ci/ci/tasks/download-snapshot.yml
+        file: utils/tasks/download-snapshot.yml
         params:
           GROUP_ID: am.ik.home
           ARTIFACT_ID: uaa-server
@@ -133,11 +124,10 @@ jobs:
         - get: repo
           resource: repo-staging
           trigger: true
-        - get: repo-ci
         - get: utils
         - get: m2
       - task: unit
-        file: repo-ci/ci/tasks/unit-test.yml
+        file: utils/tasks/unit-test.yml
   - name: deploy-to-nexus-staging
     plan:
       - aggregate:
@@ -146,11 +136,10 @@ jobs:
           trigger: true
           passed:
           - unit-test-staging
-        - get: repo-ci
         - get: utils
         - get: m2
       - task: deploy
-        file: repo-ci/ci/tasks/deploy-to-nexus.yml
+        file: utils/tasks/deploy-to-nexus.yml
         params:
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
@@ -163,10 +152,9 @@ jobs:
           passed:
           - deploy-to-nexus-staging
         - get: repo-version
-        - get: repo-ci
         - get: utils
       - task: download
-        file: repo-ci/ci/tasks/download-snapshot.yml
+        file: utils/tasks/download-snapshot.yml
         params:
           GROUP_ID: am.ik.home
           ARTIFACT_ID: uaa-server
@@ -185,9 +173,9 @@ jobs:
         - get: repo-staging
           passed:
           - deploy-to-cf-staging
-        - get: repo-ci
+        - get: utils
       - task: merge-release-to-master
-        file: repo-ci/ci/tasks/merge-release-to-other.yml
+        file: utils/tasks/merge-release-to-other.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -202,11 +190,10 @@ jobs:
           trigger: true
           passed:
           - merge-release-to-master
-        - get: repo-ci
         - get: utils
         - get: m2
       - task: unit
-        file: repo-ci/ci/tasks/unit-test.yml
+        file: utils/tasks/unit-test.yml
   - name: tag-master
     public: true
     plan:
@@ -215,12 +202,11 @@ jobs:
           passed:
           - unit-test-prod
           trigger: true
-        - get: repo-ci
         - get: repo-version
         - get: utils
         - get: m2
       - task: bump-to-release-version
-        file: repo-ci/ci/tasks/bump-to-release-version.yml
+        file: utils/tasks/bump-to-release-version.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -236,11 +222,10 @@ jobs:
           trigger: true
           passed:
           - tag-master
-        - get: repo-ci
         - get: utils
         - get: m2
       - task: deploy
-        file: repo-ci/ci/tasks/deploy-to-nexus.yml
+        file: utils/tasks/deploy-to-nexus.yml
         params:
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
@@ -253,10 +238,9 @@ jobs:
           passed:
           - deploy-to-nexus-prod
         - get: repo-version
-        - get: repo-ci
         - get: utils
       - task: download
-        file: repo-ci/ci/tasks/download-release.yml
+        file: utils/tasks/download-release.yml
         params:
           GROUP_ID: am.ik.home
           ARTIFACT_ID: uaa-server
@@ -274,10 +258,9 @@ jobs:
           passed:
           - deploy-to-nexus-prod
         - get: repo-version
-        - get: repo-ci
         - get: utils
       - task: download
-        file: repo-ci/ci/tasks/download-release.yml
+        file: utils/tasks/download-release.yml
         params:
           GROUP_ID: am.ik.home
           ARTIFACT_ID: uaa-server
@@ -299,10 +282,10 @@ jobs:
         - get: repo-version
           params:
             bump: minor
-        - get: repo-ci
+        - get: utils
         - get: m2
       - task: bump-to-next-minor-version
-        file: repo-ci/ci/tasks/bump-to-next-develop-version.yml
+        file: utils/tasks/bump-to-next-develop-version.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -321,9 +304,9 @@ jobs:
           passed:
           - bump-to-next-minor-version
           trigger: true
-        - get: repo-ci
+        - get: utils
       - task: merge-release-to-develop
-        file: repo-ci/ci/tasks/merge-release-to-other.yml
+        file: utils/tasks/merge-release-to-other.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -340,10 +323,10 @@ jobs:
         - get: repo-version
           params:
             bump: patch
-        - get: repo-ci
+        - get: utils
         - get: m2
       - task: bump-to-next-develop-version
-        file: repo-ci/ci/tasks/bump-to-next-develop-version.yml
+        file: utils/tasks/bump-to-next-develop-version.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -362,9 +345,9 @@ jobs:
           passed:
           - bump-to-next-patch-version
           trigger: true
-        - get: repo-ci
+        - get: utils
       - task: merge-release-to-develop
-        file: repo-ci/ci/tasks/merge-release-to-other.yml
+        file: utils/tasks/merge-release-to-other.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -382,10 +365,10 @@ jobs:
         - get: repo-version
           params:
             bump: major
-        - get: repo-ci
+        - get: utils
         - get: m2
       - task: bump-to-next-major-version
-        file: repo-ci/ci/tasks/bump-to-next-develop-version.yml
+        file: utils/tasks/bump-to-next-develop-version.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -404,9 +387,9 @@ jobs:
           passed:
           - bump-to-next-major-version
           trigger: true
-        - get: repo-ci
+        - get: utils
       - task: merge-release-to-develop
-        file: repo-ci/ci/tasks/merge-release-to-other.yml
+        file: utils/tasks/merge-release-to-other.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
