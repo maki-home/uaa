@@ -286,7 +286,7 @@ public class UaaApplicationTests {
 	}
 
 	@Test
-	public void testGetMemberByAdminClient() {
+	public void testGetMemberByAdminClient_ResourceOwnerPasswordCredentials() {
 		App adminClient = App.builder().appName("AdminClient").appSecret("admin")
 				.appId(UUID.randomUUID().toString()).appUrl("http://admin.example.com")
 				.grantTypes(Sets.newLinkedHashSet(AppGrantType.PASSWORD))
@@ -315,6 +315,53 @@ public class UaaApplicationTests {
 				.get(UriComponentsBuilder.fromUriString(uri)
 						.pathSegment("v1", "members", "search", "findByIds")
 						.queryParam("ids", res1.get("user_id").asText())
+						.queryParam("ids", "00000000-0000-0000-0000-000000000000").build()
+						.toUri())
+				.header("Authorization", "Bearer " + accessToken).build();
+		JsonNode res3 = restTemplate.exchange(req3, JsonNode.class).getBody();
+		assertThat(res3.get("_embedded").get("members")).hasSize(1);
+		assertThat(res3.get("_embedded").get("members").get(0).get("memberId").asText())
+				.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
+		assertThat(res3.get("_embedded").get("members").get(0).get("givenName").asText())
+				.isEqualTo("Toshiaki");
+		assertThat(res3.get("_embedded").get("members").get(0).get("familyName").asText())
+				.isEqualTo("Maki");
+		assertThat(res3.get("_embedded").get("members").get(0).get("email").asText())
+				.isEqualTo("maki@example.com");
+
+		// end test
+
+		appRepository.delete(adminClient);
+	}
+
+	@Test
+	public void testGetMemberByAdminClient_ClientCredentials() {
+		App adminClient = App.builder().appName("AdminClient").appSecret("admin")
+				.appId(UUID.randomUUID().toString()).appUrl("http://admin.example.com")
+				.grantTypes(Sets.newLinkedHashSet(AppGrantType.CLIENT_CREDENTIALS))
+				.accessTokenValiditySeconds(100).refreshTokenValiditySeconds(100)
+				.redirectUrls(Sets.newLinkedHashSet("http://admin.example.com/login"))
+				.roles(Sets.newLinkedHashSet(AppRole.TRUSTED_CLIENT))
+				.scopes(Sets.newLinkedHashSet("admin.read", "admin.write")).build();
+		adminClient = appRepository.saveAndFlush(adminClient);
+
+		// begin test
+
+		RequestEntity<?> req1 = RequestEntity
+				.post(UriComponentsBuilder.fromUriString(uri)
+						.pathSegment("oauth", "token")
+						.queryParam("grant_type", "client_credentials").build().toUri())
+				.header("Authorization", "Basic " + getBasic("AdminClient")).build();
+
+		// issue token
+		JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
+		String accessToken = res1.get("access_token").asText();
+
+		// get member
+		RequestEntity<?> req3 = RequestEntity
+				.get(UriComponentsBuilder.fromUriString(uri)
+						.pathSegment("v1", "members", "search", "findByIds")
+						.queryParam("ids", "00000000-0000-0000-0000-000000000000")
 						.queryParam("ids", "00000000-0000-0000-0000-000000000000").build()
 						.toUri())
 				.header("Authorization", "Bearer " + accessToken).build();

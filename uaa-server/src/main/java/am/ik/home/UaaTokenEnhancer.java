@@ -17,15 +17,17 @@ public class UaaTokenEnhancer implements TokenEnhancer {
 	@Override
 	public OAuth2AccessToken enhance(OAuth2AccessToken accessToken,
 			OAuth2Authentication authentication) {
-		MemberUserDetails userDetails = (MemberUserDetails) authentication.getPrincipal();
-		Member member = userDetails.getMember();
-		Map<String, Object> additionalInfo = new LinkedHashMap<>();
-		additionalInfo.put("user_id", member.getMemberId().toString());
-		additionalInfo.put("family_name", member.getFamilyName());
-		additionalInfo.put("given_name", member.getGivenName());
-		additionalInfo.put("display_name",
-				member.getFamilyName() + " " + member.getGivenName());
-		((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
+		if (authentication.getPrincipal() instanceof MemberUserDetails) {
+			MemberUserDetails userDetails = (MemberUserDetails) authentication.getPrincipal();
+			Member member = userDetails.getMember();
+			Map<String, Object> additionalInfo = new LinkedHashMap<>();
+			additionalInfo.put("user_id", member.getMemberId());
+			additionalInfo.put("family_name", member.getFamilyName());
+			additionalInfo.put("given_name", member.getGivenName());
+			additionalInfo.put("display_name",
+					member.getFamilyName() + " " + member.getGivenName());
+			((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
+		}
 		return accessToken;
 	}
 }
