@@ -32,6 +32,11 @@ resources:
     source:
       uri: https://github.com/maki-home/concourse-utils
       branch: master
+  - name: gpg
+    type: git
+    source:
+      uri: https://github.com/maki-home/encrypted-gpg
+      branch: master
   - name: cf-prod
     type: cf
     source:
@@ -97,6 +102,26 @@ jobs:
         params:
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
+  - name: deploy-to-central-dev
+    plan:
+      - aggregate:
+        - get: repo
+          resource: repo-dev
+          trigger: true
+          passed:
+          - unit-test-dev
+        - get: utils
+        - get: gpg
+        - get: m2
+      - task: deploy
+        file: utils/tasks/deploy-to-central.yml
+        params:
+          SONATYPE_USERNAME: {{sonatype-username}}
+          SONATYPE_PASSWORD: {{sonatype-password}}
+          ENCRYPTION_PASSWORD: {{gpg-encryption-password}}
+          GPG_DIR: .
+          GPG_KEYNAME: {{gpg-keyname}}
+          GPG_PASSPHRASE: {{gpg-passphrase}}
   - name: deploy-to-cf-dev
     plan:
       - aggregate:
@@ -157,6 +182,26 @@ jobs:
         params:
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
+  - name: deploy-to-central-staging
+    plan:
+      - aggregate:
+        - get: repo
+          resource: repo-staging
+          trigger: true
+          passed:
+          - unit-test-staging
+        - get: utils
+        - get: gpg
+        - get: m2
+      - task: deploy
+        file: utils/tasks/deploy-to-central.yml
+        params:
+          SONATYPE_USERNAME: {{sonatype-username}}
+          SONATYPE_PASSWORD: {{sonatype-password}}
+          ENCRYPTION_PASSWORD: {{gpg-encryption-password}}
+          GPG_DIR: .
+          GPG_KEYNAME: {{gpg-keyname}}
+          GPG_PASSPHRASE: {{gpg-passphrase}}
   - name: deploy-to-cf-staging
     plan:
       - aggregate:
@@ -257,6 +302,26 @@ jobs:
         params:
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
+  - name: deploy-to-central-prod
+    plan:
+      - aggregate:
+        - get: repo
+          resource: repo-prod
+          trigger: true
+          passed:
+          - tag-master
+        - get: utils
+        - get: gpg
+        - get: m2
+      - task: deploy
+        file: utils/tasks/deploy-to-central.yml
+        params:
+          SONATYPE_USERNAME: {{sonatype-username}}
+          SONATYPE_PASSWORD: {{sonatype-password}}
+          ENCRYPTION_PASSWORD: {{gpg-encryption-password}}
+          GPG_DIR: .
+          GPG_KEYNAME: {{gpg-keyname}}
+          GPG_PASSPHRASE: {{gpg-passphrase}}
   - name: deploy-to-cf-prod
     plan:
       - aggregate:
