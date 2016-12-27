@@ -27,7 +27,7 @@ resources:
   - name: repo-version
     type: semver
     source:
-      uri: git@github.com:maki-home/repo-version.git
+      uri: git@github.com:maki-home/uaa-version.git
       branch: master
       private_key: {{github-private-key}}
       file: version
