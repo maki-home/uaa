@@ -129,6 +129,8 @@ jobs:
         - get: m2
       - task: it
         file: utils/tasks/integration-test.yml
+        params:
+          API_BASE: https://home-uaa-dev.cfapps.pez.pivotal.io/uaa
   ############# Staging #############
   - name: unit-test-staging
     plan:
@@ -187,6 +189,8 @@ jobs:
         - get: m2
       - task: it
         file: utils/tasks/integration-test.yml
+        params:
+          API_BASE: https://home-uaa-staging.cfapps.pez.pivotal.io/uaa
   ############# Prod #############
   - name: merge-release-to-master
     public: true
