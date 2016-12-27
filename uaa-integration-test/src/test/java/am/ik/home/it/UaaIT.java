@@ -22,8 +22,10 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import am.ik.home.client.member.*;
+import am.ik.home.client.user.UaaUser;
 
 public class UaaIT {
 	private String apiBase;
@@ -253,5 +255,19 @@ public class UaaIT {
 									assertThatMemberIsMaki(iterator.next());
 								}))
 				.get();
+	}
+
+	@Test
+	public void testUaaUser() {
+		String accessToken = retrieveAccessToken("00000000-0000-0000-0000-000000000000",
+				"00000000-0000-0000-0000-000000000000", "maki@example.com", "demo");
+		ObjectMapper objectMapper = new ObjectMapper();
+		UaaUser user = new UaaUser(objectMapper, accessToken);
+
+		assertThat(user.getUserId()).isEqualTo("00000000-0000-0000-0000-000000000000");
+		assertThat(user.getUserName()).isEqualTo("maki@example.com");
+		assertThat(user.getDisplayName()).isEqualTo("Maki Toshiaki");
+		assertThat(user.getAuthorities()).containsExactly("ROLE_ADMIN", "ROLE_USER");
+		assertThat(user.getScope()).containsExactly("read", "write");
 	}
 }
