@@ -17,4 +17,4 @@ run:
     utils/scripts/add-repos-in-pom-xml.sh repo && \
     utils/scripts/add-distribution-management-in-pom-xml.sh repo && \
     utils/scripts/generate-settings-xml.sh ${NEXUS_USERNAME} ${NEXUS_PASSWORD} repo && \
-    utils/scripts/mvn.sh deploy repo
+    utils/scripts/mvn.sh "deploy -s settings.xml -Dmaven.test.skip=true" repo
