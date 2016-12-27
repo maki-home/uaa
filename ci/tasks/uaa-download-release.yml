@@ -4,8 +4,7 @@ image_resource:
   source:
     repository: maven
 inputs:
-  - name: uaa-repo
-  - name: uaa-version
+  - name: repo-version
   - name: utils
 outputs:
   - name: output
@@ -14,6 +13,6 @@ run:
   args:
   - -c
   - |
-    VERSION=`cat uaa-version/number` && \
+    VERSION=`cat repo-version/number` && \
     utils/scripts/generate-download-artifact-xml.sh am.ik.home uaa-server ${VERSION} output && \
     mvn -f output/download-artifact.xml validate

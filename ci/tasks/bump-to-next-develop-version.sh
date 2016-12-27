@@ -4,13 +4,13 @@ set -e
 BASEDIR=`pwd`
 M2REPO=$BASEDIR/m2/rootfs/opt/m2
 echo "M2REPO=$M2REPO"
-VERSION=`cat uaa-version/number`-SNAPSHOT
+VERSION=`cat repo-version/number`-SNAPSHOT
 MESSAGE="[Concourse CI] Bump to Next Development Version ($VERSION)"
 
 shopt -s dotglob
-mv -f uaa-repo-staging/* release-out/
+mv -f repo-staging/* release-out/
 cd release-out
-git remote add -f prod $BASEDIR/uaa-repo-prod
+git remote add -f prod $BASEDIR/repo-prod
 git merge --no-edit prod/master
 echo "Bump to $VERSION"
 ./mvnw versions:set -DnewVersion=${VERSION} -DallowSnapshots -Dmaven.repo.local=$M2REPO

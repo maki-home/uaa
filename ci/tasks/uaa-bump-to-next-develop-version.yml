@@ -4,14 +4,14 @@ image_resource:
   source:
     repository: making/alpine-java-bash-git
 inputs:
-  - name: uaa-version
-  - name: uaa-repo-staging
-  - name: uaa-repo-prod
-  - name: uaa-ci
+  - name: repo-version
+  - name: repo-staging
+  - name: repo-prod
+  - name: repo-ci
   - name: m2
 outputs:
   - name: release-out
 run:
   path: bash
   args:
-    - uaa-ci/ci/tasks/bump-to-next-develop-version.sh
+    - repo-ci/ci/tasks/bump-to-next-develop-version.sh

@@ -5,12 +5,12 @@ image_resource:
   source:
     repository: making/alpine-java-bash-git
 inputs:
-  - name: uaa-repo-other
-  - name: uaa-repo-staging
-  - name: uaa-ci
+  - name: repo-other
+  - name: repo-staging
+  - name: repo-ci
 outputs:
   - name: other-out
 run:
   path: bash
   args:
-  - uaa-ci/ci/tasks/merge-release-to-other.sh
+  - repo-ci/ci/tasks/merge-release-to-other.sh

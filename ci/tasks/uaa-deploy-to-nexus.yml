@@ -4,8 +4,8 @@ image_resource:
   source:
     repository: making/alpine-java-bash-git
 inputs:
-  - name: uaa-repo
-  - name: uaa-ci
+  - name: repo
+  - name: repo-ci
   - name: utils
   - name: m2
 outputs:
@@ -15,7 +15,7 @@ run:
   args:
   - -c
   - |
-    utils/scripts/add-repos-in-pom-xml.sh uaa-repo && \
-    utils/scripts/add-distribution-management-in-pom-xml.sh uaa-repo && \
-    utils/scripts/generate-settings-xml.sh ${NEXUS_USERNAME} ${NEXUS_PASSWORD} uaa-repo && \
-    uaa-ci/ci/tasks/deploy.sh uaa-repo
+    utils/scripts/add-repos-in-pom-xml.sh repo && \
+    utils/scripts/add-distribution-management-in-pom-xml.sh repo && \
+    utils/scripts/generate-settings-xml.sh ${NEXUS_USERNAME} ${NEXUS_PASSWORD} repo && \
+    repo-ci/ci/tasks/deploy.sh repo

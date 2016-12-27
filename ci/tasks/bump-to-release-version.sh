@@ -4,11 +4,11 @@ set -e
 BASEDIR=`pwd`
 M2REPO=$BASEDIR/m2/rootfs/opt/m2
 echo "M2REPO=$M2REPO"
-VERSION=`cat uaa-version/number`
+VERSION=`cat repo-version/number`
 MESSAGE="[Concourse CI] Release $VERSION"
 
 shopt -s dotglob
-mv -f uaa-repo-prod/* master-out
+mv -f repo-prod/* master-out
 echo "Bump to $VERSION"
 cd master-out
 ./mvnw versions:set -DnewVersion=${VERSION} -Dmaven.repo.local=${M2REPO}
