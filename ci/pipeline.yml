@@ -205,9 +205,9 @@ jobs:
     public: true
     plan:
       - aggregate:
-        - get: uaa-repo
-          resource: uaa-repo-prod
-          passed: [ uaa-unit-test-prod ]
+        - get: uaa-repo-prod
+          passed:
+          - uaa-unit-test-prod
           trigger: true
         - get: uaa-ci
         - get: uaa-version
@@ -294,7 +294,7 @@ jobs:
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
-      - put: uaa-repo-prod
+      - put: uaa-repo-staging
         params:
           repository: release-out
       - put: uaa-version
@@ -309,8 +309,9 @@ jobs:
           passed:
           - bump-to-next-minor-version
           trigger: true
+        - get: uaa-ci
       - task: merge-release-to-develop
-        file: repo-release/ci/tasks/uaa-merge-release-to-other.yml
+        file: uaa-ci/ci/tasks/uaa-merge-release-to-other.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
@@ -334,7 +335,7 @@ jobs:
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
-      - put: uaa-repo-prod
+      - put: uaa-repo-staging
         params:
           repository: release-out
       - put: uaa-version
@@ -349,8 +350,51 @@ jobs:
           passed:
           - bump-to-next-patch-version
           trigger: true
+        - get: uaa-ci
       - task: merge-release-to-develop
-        file: repo-release/ci/tasks/uaa-merge-release-to-other.yml
+        file: uaa-ci/ci/tasks/uaa-merge-release-to-other.yml
+        params:
+          GIT_EMAIL: {{git-email}}
+          GIT_NAME: {{git-name}}
+      - put: uaa-repo-dev
+        params:
+          repository: other-out
+  - name: bump-to-next-major-version
+    plan:
+      - aggregate:
+        - get: uaa-repo-staging
+        - get: uaa-repo-prod
+          passed:
+          - uaa-deploy-to-cf-prod
+          - uaa-deploy-to-dockerhub-prod
+        - get: uaa-version
+          params:
+            bump: major
+        - get: uaa-ci
+        - get: m2
+      - task: bump-to-next-major-version
+        file: uaa-ci/ci/tasks/uaa-bump-to-next-develop-version.yml
+        params:
+          GIT_EMAIL: {{git-email}}
+          GIT_NAME: {{git-name}}
+      - put: uaa-repo-staging
+        params:
+          repository: release-out
+      - put: uaa-version
+        params:
+          file: uaa-version/number
+  - name: merge-release-to-develop-for-major
+    plan:
+      - aggregate:
+        - get: uaa-repo-other
+          resource: uaa-repo-dev
+        - get: uaa-repo-staging
+          passed:
+          - bump-to-next-major-version
+          trigger: true
+        - get: uaa-ci
+      - task: merge-release-to-develop
+        file: uaa-ci/ci/tasks/uaa-merge-release-to-other.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
