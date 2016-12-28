@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
 
     <name>uaa</name>
-    <description>UAA Server for home system</description>
+    <description>Single tenant simple OAuth 2 Server a.k.a. Maki UAA (User Account and Authentication)</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -23,6 +23,29 @@
         <module>uaa-client</module>
         <module>uaa-integration-test</module>
     </modules>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <url>https://github.com/maki-home/uaa</url>
+        <connection>scm:git:git@github.com:maki-home/uaa.git</connection>
+        <developerConnection>scm:git:git@github.com:maki-home/uaa.git</developerConnection>
+    </scm>
+    <url>https://github.com/maki-home/uaa</url>
+
+    <developers>
+        <developer>
+            <id>making</id>
+            <name>Toshiaki Maki</name>
+            <email>makingx@gmail.com</email>
+            <url>https://twitter.com/making</url>
+        </developer>
+    </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
