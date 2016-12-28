@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -18,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class UaaUser implements Serializable {
 	public static final String ACCESS_TOKEN_MESSAGE_HEADER = "accessToken";
+	private static final Logger log = LoggerFactory.getLogger(UaaUser.class);
 	private final String userId;
 	private final String userName;
 	private final String displayName;
@@ -33,17 +36,22 @@ public class UaaUser implements Serializable {
 		try {
 			JsonNode json = objectMapper.readValue(
 					Base64Utils.decodeFromUrlSafeString(payload), JsonNode.class);
+			log.debug("Payload of accessToken = {}", json);
 			this.userId = json.get("user_id").asText();
 			this.userName = json.get("user_name").asText();
 			this.displayName = json.get("display_name").asText();
 			Set<String> scope = new LinkedHashSet<>();
-			for (JsonNode node : json.get("scope")) {
-				scope.add(node.asText());
+			if (json.has("scope")) {
+				for (JsonNode node : json.get("scope")) {
+					scope.add(node.asText());
+				}
 			}
 			this.scope = Collections.unmodifiableSet(scope);
 			Set<String> authorities = new LinkedHashSet<>();
-			for (JsonNode node : json.get("authorities")) {
-				authorities.add(node.asText());
+			if (json.has("authorities")) {
+				for (JsonNode node : json.get("authorities")) {
+					authorities.add(node.asText());
+				}
 			}
 			this.authorities = Collections.unmodifiableSet(authorities);
 		}
