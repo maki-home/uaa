@@ -25,6 +25,31 @@ public class AsyncMemberClientImpl implements MemberClient.Async {
 		this.asyncRestTemplate = asyncRestTemplate;
 	}
 
+	private static <T> CompletableFuture<T> toCompletableFuture(
+			ListenableFuture<T> listenableFuture) {
+		CompletableFuture<T> completableFuture = new CompletableFuture<T>() {
+			@Override
+			public boolean cancel(boolean mayInterruptIfRunning) {
+				// propagate cancel to the listenable future
+				boolean result = listenableFuture.cancel(mayInterruptIfRunning);
+				super.cancel(mayInterruptIfRunning);
+				return result;
+			}
+		};
+		listenableFuture.addCallback(new ListenableFutureCallback<T>() {
+			@Override
+			public void onSuccess(T result) {
+				completableFuture.complete(result);
+			}
+
+			@Override
+			public void onFailure(Throwable t) {
+				completableFuture.completeExceptionally(t);
+			}
+		});
+		return completableFuture;
+	}
+
 	@Override
 	public CompletableFuture<PagedResources<Member>> findAll(Pageable pageable) {
 		RequestEntity<Void> requestEntity = RequestEntities.findAll(apiBase, pageable);
@@ -91,30 +116,5 @@ public class AsyncMemberClientImpl implements MemberClient.Async {
 						return adapteeResult.getBody();
 					}
 				});
-	}
-
-	private static <T> CompletableFuture<T> toCompletableFuture(
-			ListenableFuture<T> listenableFuture) {
-		CompletableFuture<T> completableFuture = new CompletableFuture<T>() {
-			@Override
-			public boolean cancel(boolean mayInterruptIfRunning) {
-				// propagate cancel to the listenable future
-				boolean result = listenableFuture.cancel(mayInterruptIfRunning);
-				super.cancel(mayInterruptIfRunning);
-				return result;
-			}
-		};
-		listenableFuture.addCallback(new ListenableFutureCallback<T>() {
-			@Override
-			public void onSuccess(T result) {
-				completableFuture.complete(result);
-			}
-
-			@Override
-			public void onFailure(Throwable t) {
-				completableFuture.completeExceptionally(t);
-			}
-		});
-		return completableFuture;
 	}
 }

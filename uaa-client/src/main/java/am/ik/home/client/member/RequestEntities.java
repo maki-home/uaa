@@ -10,25 +10,25 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 class RequestEntities {
 	static RequestEntity<Void> findAll(String apiBase, Pageable pageable) {
-		UriComponentsBuilder builder = fromHttpUrl(apiBase).pathSegment("api", "members");
+		UriComponentsBuilder builder = fromHttpUrl(apiBase).pathSegment("v1", "members");
 		return get(withPageable(builder, pageable).build().encode().toUri()).build();
 	}
 
 	static RequestEntity<Void> findOne(String apiBase, String memberId) {
-		return get(fromHttpUrl(apiBase).pathSegment("api", "members", memberId).build()
+		return get(fromHttpUrl(apiBase).pathSegment("v1", "members", memberId).build()
 				.encode().toUri()).build();
 	}
 
 	static RequestEntity<Void> findByIds(String apiBase, String... ids) {
 		return get(
-				fromHttpUrl(apiBase).pathSegment("api", "members", "search", "findByIds")
+				fromHttpUrl(apiBase).pathSegment("v1", "members", "search", "findByIds")
 						.queryParam("ids", (Object[]) ids).build().encode().toUri())
 								.build();
 	}
 
 	static RequestEntity<Void> findByEmail(String apiBase, String email) {
-		return get(fromHttpUrl(apiBase)
-				.pathSegment("api", "members", "search", "findByEmail")
-				.queryParam("email", email).build().encode().toUri()).build();
+		return get(
+				fromHttpUrl(apiBase).pathSegment("v1", "members", "search", "findByEmail")
+						.queryParam("email", email).build().encode().toUri()).build();
 	}
 }

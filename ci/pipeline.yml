@@ -1,30 +1,24 @@
 ---
 resources:
-  - name: uaa-repo-prod
+  - name: repo-prod
     type: git
     source:
       uri: git@github.com:maki-home/uaa.git
       branch: master
       private_key: {{github-private-key}}
-  - name: uaa-repo-staging
+  - name: repo-staging
     type: git
     source:
       uri: git@github.com:maki-home/uaa.git
       branch: release
       private_key: {{github-private-key}}
-  - name: uaa-repo-dev
+  - name: repo-dev
     type: git
     source:
       uri: git@github.com:maki-home/uaa.git
       branch: develop
       private_key: {{github-private-key}}
-  - name: uaa-ci
-    type: git
-    source:
-      uri: git@github.com:maki-home/uaa.git
-      branch: develop
-      private_key: {{github-private-key}}
-  - name: uaa-version
+  - name: repo-version
     type: semver
     source:
       uri: git@github.com:maki-home/uaa-version.git
@@ -37,6 +31,11 @@ resources:
     type: git
     source:
       uri: https://github.com/maki-home/concourse-utils
+      branch: master
+  - name: gpg
+    type: git
+    source:
+      uri: https://github.com/maki-home/encrypted-gpg
       branch: master
   - name: cf-prod
     type: cf
@@ -78,326 +77,415 @@ resources:
       email: {{docker-email}}
 jobs:
   ############# Dev #############
-  - name: uaa-unit-test-dev
+  - name: unit-test-dev
     plan:
       - aggregate:
-        - get: uaa-repo
-          resource: uaa-repo-dev
+        - get: repo
+          resource: repo-dev
           trigger: true
-        - get: uaa-ci
         - get: utils
         - get: m2
       - task: unit
-        file: uaa-ci/ci/tasks/uaa-unit-test.yml
-  - name: uaa-deploy-to-nexus-dev
+        file: utils/tasks/unit-test.yml
+  - name: deploy-to-nexus-dev
     plan:
       - aggregate:
-        - get: uaa-repo
-          resource: uaa-repo-dev
+        - get: repo
+          resource: repo-dev
           trigger: true
           passed:
-          - uaa-unit-test-dev
-        - get: uaa-ci
+          - unit-test-dev
         - get: utils
         - get: m2
       - task: deploy
-        file: uaa-ci/ci/tasks/uaa-deploy-to-nexus.yml
+        file: utils/tasks/deploy-to-nexus.yml
         params:
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
-  - name: uaa-deploy-to-cf-dev
+  - name: deploy-to-central-dev
     plan:
       - aggregate:
-        - get: uaa-repo
-          resource: uaa-repo-dev
+        - get: repo
+          resource: repo-dev
           trigger: true
           passed:
-          - uaa-deploy-to-nexus-dev
-        - get: uaa-version
-        - get: uaa-ci
+          - unit-test-dev
+        - get: utils
+        - get: gpg
+        - get: m2
+      - task: deploy
+        file: utils/tasks/deploy-to-central.yml
+        params:
+          SONATYPE_USERNAME: {{sonatype-username}}
+          SONATYPE_PASSWORD: {{sonatype-password}}
+          ENCRYPTION_PASSWORD: {{gpg-encryption-password}}
+          GPG_DIR: .
+          GPG_KEYNAME: {{gpg-keyname}}
+          GPG_PASSPHRASE: {{gpg-passphrase}}
+  - name: deploy-to-cf-dev
+    plan:
+      - aggregate:
+        - get: repo
+          resource: repo-dev
+          trigger: true
+          passed:
+          - deploy-to-nexus-dev
+        - get: repo-version
         - get: utils
       - task: download
-        file: uaa-ci/ci/tasks/uaa-download-snapshot.yml
+        file: utils/tasks/download-snapshot.yml
+        params:
+          GROUP_ID: am.ik.home
+          ARTIFACT_ID: uaa-server
       - put: cf-dev
         params:
-          manifest: uaa-repo/uaa-server/manifest-pez-dev.yml
+          manifest: repo/uaa-server/manifest-pez-dev.yml
           path: output/app.jar
           current_app_name: home-uaa-dev
-  ############# Staging #############
-  - name: uaa-unit-test-staging
+  - name: integration-test-dev
     plan:
       - aggregate:
-        - get: uaa-repo
-          resource: uaa-repo-staging
+        - get: repo
+          resource: repo-dev
           trigger: true
-        - get: uaa-ci
+          passed:
+          - deploy-to-cf-dev
+        - get: utils
+        - get: m2
+      - task: it
+        file: utils/tasks/integration-test.yml
+        params:
+          API_BASE: https://home-uaa-dev.cfapps.pez.pivotal.io/uaa
+  ############# Staging #############
+  - name: unit-test-staging
+    plan:
+      - aggregate:
+        - get: repo
+          resource: repo-staging
+          trigger: true
         - get: utils
         - get: m2
       - task: unit
-        file: uaa-ci/ci/tasks/uaa-unit-test.yml
-  - name: uaa-deploy-to-nexus-staging
+        file: utils/tasks/unit-test.yml
+  - name: deploy-to-nexus-staging
     plan:
       - aggregate:
-        - get: uaa-repo
-          resource: uaa-repo-staging
+        - get: repo
+          resource: repo-staging
           trigger: true
           passed:
-          - uaa-unit-test-staging
-        - get: uaa-ci
+          - unit-test-staging
         - get: utils
         - get: m2
       - task: deploy
-        file: uaa-ci/ci/tasks/uaa-deploy-to-nexus.yml
+        file: utils/tasks/deploy-to-nexus.yml
         params:
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
-  - name: uaa-deploy-to-cf-staging
+  - name: deploy-to-central-staging
     plan:
       - aggregate:
-        - get: uaa-repo
-          resource: uaa-repo-staging
+        - get: repo
+          resource: repo-staging
           trigger: true
           passed:
-          - uaa-deploy-to-nexus-staging
-        - get: uaa-version
-        - get: uaa-ci
+          - unit-test-staging
+        - get: utils
+        - get: gpg
+        - get: m2
+      - task: deploy
+        file: utils/tasks/deploy-to-central.yml
+        params:
+          SONATYPE_USERNAME: {{sonatype-username}}
+          SONATYPE_PASSWORD: {{sonatype-password}}
+          ENCRYPTION_PASSWORD: {{gpg-encryption-password}}
+          GPG_DIR: .
+          GPG_KEYNAME: {{gpg-keyname}}
+          GPG_PASSPHRASE: {{gpg-passphrase}}
+  - name: deploy-to-cf-staging
+    plan:
+      - aggregate:
+        - get: repo
+          resource: repo-staging
+          trigger: true
+          passed:
+          - deploy-to-nexus-staging
+        - get: repo-version
         - get: utils
       - task: download
-        file: uaa-ci/ci/tasks/uaa-download-snapshot.yml
+        file: utils/tasks/download-snapshot.yml
+        params:
+          GROUP_ID: am.ik.home
+          ARTIFACT_ID: uaa-server
       - put: cf-staging
         params:
-          manifest: uaa-repo/uaa-server/manifest-pez-staging.yml
+          manifest: repo/uaa-server/manifest-pez-staging.yml
           path: output/app.jar
           current_app_name: home-uaa-staging
+  - name: integration-test-staging
+    plan:
+      - aggregate:
+        - get: repo
+          resource: repo-staging
+          trigger: true
+          passed:
+          - deploy-to-cf-staging
+        - get: utils
+        - get: m2
+      - task: it
+        file: utils/tasks/integration-test.yml
+        params:
+          API_BASE: https://home-uaa-staging.cfapps.pez.pivotal.io/uaa
   ############# Prod #############
   - name: merge-release-to-master
     public: true
     plan:
       - aggregate:
-        - get: uaa-repo-other
-          resource: uaa-repo-prod
-        - get: uaa-repo-staging
+        - get: repo-other
+          resource: repo-prod
+        - get: repo-staging
           passed:
-          - uaa-deploy-to-cf-staging
-        - get: uaa-ci
+          - integration-test-staging
+        - get: utils
       - task: merge-release-to-master
-        file: uaa-ci/ci/tasks/uaa-merge-release-to-other.yml
+        file: utils/tasks/merge-release-to-other.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
-      - put: uaa-repo-prod
+      - put: repo-prod
         params:
           repository: other-out
-  - name: uaa-unit-test-prod
+  - name: unit-test-prod
     plan:
       - aggregate:
-        - get: uaa-repo
-          resource: uaa-repo-prod
+        - get: repo
+          resource: repo-prod
           trigger: true
           passed:
           - merge-release-to-master
-        - get: uaa-ci
         - get: utils
         - get: m2
       - task: unit
-        file: uaa-ci/ci/tasks/uaa-unit-test.yml
+        file: utils/tasks/unit-test.yml
   - name: tag-master
     public: true
     plan:
       - aggregate:
-        - get: uaa-repo-prod
+        - get: repo-prod
           passed:
-          - uaa-unit-test-prod
+          - unit-test-prod
           trigger: true
-        - get: uaa-ci
-        - get: uaa-version
+        - get: repo-version
         - get: utils
         - get: m2
       - task: bump-to-release-version
-        file: uaa-ci/ci/tasks/uaa-bump-to-release-version.yml
+        file: utils/tasks/bump-to-release-version.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
-      - put: uaa-repo-prod
+      - put: repo-prod
         params:
           repository: master-out
-          tag: uaa-version/number
-  - name: uaa-deploy-to-nexus-prod
+          tag: repo-version/number
+  - name: deploy-to-nexus-prod
     plan:
       - aggregate:
-        - get: uaa-repo
-          resource: uaa-repo-prod
+        - get: repo
+          resource: repo-prod
           trigger: true
           passed:
           - tag-master
-        - get: uaa-ci
         - get: utils
         - get: m2
       - task: deploy
-        file: uaa-ci/ci/tasks/uaa-deploy-to-nexus.yml
+        file: utils/tasks/deploy-to-nexus.yml
         params:
           NEXUS_USERNAME: {{nexus-username}}
           NEXUS_PASSWORD: {{nexus-password}}
-  - name: uaa-deploy-to-cf-prod
+  - name: deploy-to-central-prod
     plan:
       - aggregate:
-        - get: uaa-repo
-          resource: uaa-repo-prod
+        - get: repo
+          resource: repo-prod
           trigger: true
           passed:
-          - uaa-deploy-to-nexus-prod
-        - get: uaa-version
-        - get: uaa-ci
+          - tag-master
+        - get: utils
+        - get: gpg
+        - get: m2
+      - task: deploy
+        file: utils/tasks/deploy-to-central.yml
+        params:
+          SONATYPE_USERNAME: {{sonatype-username}}
+          SONATYPE_PASSWORD: {{sonatype-password}}
+          ENCRYPTION_PASSWORD: {{gpg-encryption-password}}
+          GPG_DIR: .
+          GPG_KEYNAME: {{gpg-keyname}}
+          GPG_PASSPHRASE: {{gpg-passphrase}}
+  - name: deploy-to-cf-prod
+    plan:
+      - aggregate:
+        - get: repo
+          resource: repo-prod
+          trigger: true
+          passed:
+          - deploy-to-nexus-prod
+        - get: repo-version
         - get: utils
       - task: download
-        file: uaa-ci/ci/tasks/uaa-download-release.yml
+        file: utils/tasks/download-release.yml
+        params:
+          GROUP_ID: am.ik.home
+          ARTIFACT_ID: uaa-server
       - put: cf-prod
         params:
-          manifest: uaa-repo/uaa-server/manifest-pez.yml
+          manifest: repo/uaa-server/manifest-pez.yml
           path: output/app.jar
           current_app_name: home-uaa
-  - name: uaa-deploy-to-dockerhub-prod
+  - name: deploy-to-dockerhub-prod
     plan:
       - aggregate:
-        - get: uaa-repo
-          resource: uaa-repo-prod
+        - get: repo
+          resource: repo-prod
           trigger: true
           passed:
-          - uaa-deploy-to-nexus-prod
-        - get: uaa-version
-        - get: uaa-ci
+          - deploy-to-nexus-prod
+        - get: repo-version
         - get: utils
       - task: download
-        file: uaa-ci/ci/tasks/uaa-download-release.yml
+        file: utils/tasks/download-release.yml
+        params:
+          GROUP_ID: am.ik.home
+          ARTIFACT_ID: uaa-server
       - put: dockerhub
         params:
           build: .
-          dockerfile: uaa-repo/uaa-server/Dockerfile
+          dockerfile: repo/uaa-server/Dockerfile
           tag_as_latest: true
-          tag: uaa-version/number
+          tag: repo-version/number
   - name: bump-to-next-minor-version
     plan:
       - aggregate:
-        - get: uaa-repo-staging
-        - get: uaa-repo-prod
+        - get: repo-staging
+        - get: repo-prod
           passed:
-          - uaa-deploy-to-cf-prod
-          - uaa-deploy-to-dockerhub-prod
+          - deploy-to-cf-prod
+          - deploy-to-dockerhub-prod
           trigger: true
-        - get: uaa-version
+        - get: repo-version
           params:
             bump: minor
-        - get: uaa-ci
+        - get: utils
         - get: m2
       - task: bump-to-next-minor-version
-        file: uaa-ci/ci/tasks/uaa-bump-to-next-develop-version.yml
+        file: utils/tasks/bump-to-next-develop-version.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
-      - put: uaa-repo-staging
+      - put: repo-staging
         params:
           repository: release-out
-      - put: uaa-version
+      - put: repo-version
         params:
-          file: uaa-version/number
+          file: repo-version/number
   - name: merge-release-to-develop-for-minor
     plan:
       - aggregate:
-        - get: uaa-repo-other
-          resource: uaa-repo-dev
-        - get: uaa-repo-staging
+        - get: repo-other
+          resource: repo-dev
+        - get: repo-staging
           passed:
           - bump-to-next-minor-version
           trigger: true
-        - get: uaa-ci
+        - get: utils
       - task: merge-release-to-develop
-        file: uaa-ci/ci/tasks/uaa-merge-release-to-other.yml
+        file: utils/tasks/merge-release-to-other.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
-      - put: uaa-repo-dev
+      - put: repo-dev
         params:
           repository: other-out
   - name: bump-to-next-patch-version
     plan:
       - aggregate:
-        - get: uaa-repo-staging
-        - get: uaa-repo-prod
+        - get: repo-staging
+        - get: repo-prod
           passed:
           - tag-master
-        - get: uaa-version
+        - get: repo-version
           params:
             bump: patch
-        - get: uaa-ci
+        - get: utils
         - get: m2
       - task: bump-to-next-develop-version
-        file: uaa-ci/ci/tasks/uaa-bump-to-next-develop-version.yml
+        file: utils/tasks/bump-to-next-develop-version.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
-      - put: uaa-repo-staging
+      - put: repo-staging
         params:
           repository: release-out
-      - put: uaa-version
+      - put: repo-version
         params:
-          file: uaa-version/number
+          file: repo-version/number
   - name: merge-release-to-develop-for-patch
     plan:
       - aggregate:
-        - get: uaa-repo-other
-          resource: uaa-repo-dev
-        - get: uaa-repo-staging
+        - get: repo-other
+          resource: repo-dev
+        - get: repo-staging
           passed:
           - bump-to-next-patch-version
           trigger: true
-        - get: uaa-ci
+        - get: utils
       - task: merge-release-to-develop
-        file: uaa-ci/ci/tasks/uaa-merge-release-to-other.yml
+        file: utils/tasks/merge-release-to-other.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
-      - put: uaa-repo-dev
+      - put: repo-dev
         params:
           repository: other-out
   - name: bump-to-next-major-version
     plan:
       - aggregate:
-        - get: uaa-repo-staging
-        - get: uaa-repo-prod
+        - get: repo-staging
+        - get: repo-prod
           passed:
-          - uaa-deploy-to-cf-prod
-          - uaa-deploy-to-dockerhub-prod
-        - get: uaa-version
+          - deploy-to-cf-prod
+          - deploy-to-dockerhub-prod
+        - get: repo-version
           params:
             bump: major
-        - get: uaa-ci
+        - get: utils
         - get: m2
       - task: bump-to-next-major-version
-        file: uaa-ci/ci/tasks/uaa-bump-to-next-develop-version.yml
+        file: utils/tasks/bump-to-next-develop-version.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
-      - put: uaa-repo-staging
+      - put: repo-staging
         params:
           repository: release-out
-      - put: uaa-version
+      - put: repo-version
         params:
-          file: uaa-version/number
+          file: repo-version/number
   - name: merge-release-to-develop-for-major
     plan:
       - aggregate:
-        - get: uaa-repo-other
-          resource: uaa-repo-dev
-        - get: uaa-repo-staging
+        - get: repo-other
+          resource: repo-dev
+        - get: repo-staging
           passed:
           - bump-to-next-major-version
           trigger: true
-        - get: uaa-ci
+        - get: utils
       - task: merge-release-to-develop
-        file: uaa-ci/ci/tasks/uaa-merge-release-to-other.yml
+        file: utils/tasks/merge-release-to-other.yml
         params:
           GIT_EMAIL: {{git-email}}
           GIT_NAME: {{git-name}}
-      - put: uaa-repo-dev
+      - put: repo-dev
         params:
           repository: other-out

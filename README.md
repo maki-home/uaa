@@ -39,7 +39,7 @@ No need to configure properties.
 
 ``` console
 $ cf create-service p-mysql 100mb-dev uaa-db
-$ cf push your-uaa-b java_buildpack_offline
+$ cf push your-uaa -b java_buildpack_offline
 ```
 
 ### Deploy to PCFDev

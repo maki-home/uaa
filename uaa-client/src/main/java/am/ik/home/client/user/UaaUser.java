@@ -17,13 +17,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class UaaUser implements Serializable {
+	public static final String ACCESS_TOKEN_MESSAGE_HEADER = "accessToken";
 	private final String userId;
 	private final String userName;
 	private final String displayName;
 	private final Set<String> scope;
 	private final Set<String> authorities;
-
-	public static final String ACCESS_TOKEN_MESSAGE_HEADER = "accessToken";
 
 	public UaaUser(ObjectMapper objectMapper) {
 		this(objectMapper, getTokenValueFromSecurityContext());
@@ -53,6 +52,15 @@ public class UaaUser implements Serializable {
 		}
 	}
 
+	private static String getTokenValueFromSecurityContext() {
+		Authentication authentication = SecurityContextHolder.getContext()
+				.getAuthentication();
+		OAuth2Authentication auth = OAuth2Authentication.class.cast(authentication);
+		OAuth2AuthenticationDetails details = OAuth2AuthenticationDetails.class
+				.cast(auth.getDetails());
+		return details.getTokenValue();
+	}
+
 	public String getUserId() {
 		return userId;
 	}
@@ -71,15 +79,6 @@ public class UaaUser implements Serializable {
 
 	public Set<String> getAuthorities() {
 		return authorities;
-	}
-
-	private static String getTokenValueFromSecurityContext() {
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
-		OAuth2Authentication auth = OAuth2Authentication.class.cast(authentication);
-		OAuth2AuthenticationDetails details = OAuth2AuthenticationDetails.class
-				.cast(auth.getDetails());
-		return details.getTokenValue();
 	}
 
 	@Override
