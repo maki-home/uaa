@@ -2,17 +2,16 @@
 
 a.k.a. Maki UAA
 
-### Build
+* `uaa-server` [![Maven Central](https://maven-badges.herokuapp.com/maven-central/am.ik.home/uaa-server/badge.svg)](https://maven-badges.herokuapp.com/maven-central/am.ik.home/uaa-server)
+* `uaa-client` [![Maven Central](https://maven-badges.herokuapp.com/maven-central/am.ik.home/uaa-client/badge.svg)](https://maven-badges.herokuapp.com/maven-central/am.ik.home/uaa-client)
 
-``` console
-$ cd uaa-server
-$ ./mvnw clean package
-```
 
 ### Run locally
 
+You can download `uaa-server-xxx.jar` from [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22uaa-server%22).
+
 ``` console
-$ java -jar target/uaa-0.0.1-SNAPSHOT.jar
+$ java -jar target/uaa-server-1.1.0.jar
 ```
 
 Go to [http://localhost:9999/uaa](http://localhost:9999/uaa)
@@ -28,7 +27,7 @@ By default, MySQL and following properties are used.
 You can change like:
 
 ``` console
-$ java -jar target/uaa-0.0.1-SNAPSHOT.jar --spring.datasource.url=jdbc:mysql://localhost:3306/foo --spring.datasource.username=foo --spring.datasource.password=foo
+$ java -jar target/uaa-server-1.1.0.jar --spring.datasource.url=jdbc:mysql://localhost:3306/foo --spring.datasource.username=foo --spring.datasource.password=foo
 ```
 
 ## How to deploy to Cloud Foundry
