@@ -25,7 +25,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -45,23 +44,12 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import am.ik.home.app.AppClientDetails;
 import am.ik.home.app.AppRepository;
 import am.ik.home.member.Member;
-import am.ik.home.member.MemberRepository;
-import am.ik.home.member.MemberUserDetails;
 
 @SpringBootApplication
 public class UaaApplication {
 
-	@Autowired
-	MemberRepository memberRepository;
-
 	public static void main(String[] args) {
 		SpringApplication.run(UaaApplication.class, args);
-	}
-
-	@Bean
-	UserDetailsService userDetailsService(MemberRepository memberRepository) {
-		return s -> memberRepository.findByEmail(s).map(MemberUserDetails::new)
-				.orElseThrow(() -> new UsernameNotFoundException("not found"));
 	}
 
 	@Bean

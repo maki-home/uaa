@@ -22,7 +22,7 @@ public class UaaUser implements Serializable {
 	public static final String ACCESS_TOKEN_MESSAGE_HEADER = "accessToken";
 	private static final Logger log = LoggerFactory.getLogger(UaaUser.class);
 	private final String userId;
-	private final String userName;
+	private final String email;
 	private final String displayName;
 	private final Set<String> scope;
 	private final Set<String> authorities;
@@ -38,7 +38,7 @@ public class UaaUser implements Serializable {
 					Base64Utils.decodeFromUrlSafeString(payload), JsonNode.class);
 			log.debug("Payload of accessToken = {}", json);
 			this.userId = json.get("user_id").asText();
-			this.userName = json.get("user_name").asText();
+			this.email = json.get("email").asText();
 			this.displayName = json.get("display_name").asText();
 			Set<String> scope = new LinkedHashSet<>();
 			if (json.has("scope")) {
@@ -73,8 +73,8 @@ public class UaaUser implements Serializable {
 		return userId;
 	}
 
-	public String getUserName() {
-		return userName;
+	public String getEmail() {
+		return email;
 	}
 
 	public String getDisplayName() {
@@ -91,7 +91,7 @@ public class UaaUser implements Serializable {
 
 	@Override
 	public String toString() {
-		return "UaaUser{" + "userId='" + userId + '\'' + ", userName='" + userName + '\''
+		return "UaaUser{" + "userId='" + userId + '\'' + ", email='" + email + '\''
 				+ ", displayName='" + displayName + '\'' + ", scope=" + scope
 				+ ", authorities=" + authorities + '}';
 	}

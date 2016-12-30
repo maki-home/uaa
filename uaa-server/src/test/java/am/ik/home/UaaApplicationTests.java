@@ -1,6 +1,9 @@
 package am.ik.home;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.RequestEntity.get;
+import static org.springframework.http.RequestEntity.post;
+import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -20,7 +23,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -53,13 +55,11 @@ public class UaaApplicationTests {
 
 	@Test
 	public void testTrustedClient() throws IOException {
-		RequestEntity<?> req1 = RequestEntity
-				.post(UriComponentsBuilder.fromUriString(uri)
-						.pathSegment("oauth", "token")
-						.queryParam("grant_type", "password")
-						.queryParam("username", "maki@example.com")
-						.queryParam("password", "demo").build().toUri())
-				.header("Authorization", "Basic " + getBasic("Moneygr")).build();
+		RequestEntity<?> req1 = post(fromUriString(uri).pathSegment("oauth", "token")
+				.queryParam("grant_type", "password")
+				.queryParam("username", "maki@example.com").queryParam("password", "demo")
+				.build().toUri()).header("Authorization", "Basic " + getBasic("Moneygr"))
+						.build();
 
 		// issue token
 		JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
@@ -76,17 +76,43 @@ public class UaaApplicationTests {
 		assertThat(res1.get("display_name").asText()).isEqualTo("Maki Toshiaki");
 		assertThat(res1.get("user_id").asText())
 				.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
+		assertThat(res1.get("email").asText()).isEqualTo("maki@example.com");
+	}
+
+	@Test
+	public void testTrustedClient_loginByMemberId() throws IOException {
+		RequestEntity<?> req1 = post(fromUriString(uri).pathSegment("oauth", "token")
+				.queryParam("grant_type", "password")
+				.queryParam("username", "00000000-0000-0000-0000-000000000000")
+				.queryParam("password", "demo").build().toUri())
+						.header("Authorization", "Basic " + getBasic("Moneygr")).build();
+
+		// issue token
+		JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
+
+		assertThat(res1.get("access_token").asText()).isNotEmpty();
+		assertThat(res1.get("refresh_token").asText()).isNotEmpty();
+		assertThat(res1.get("scope").asText().split(" ")).hasSize(2);
+		assertThat(res1.get("scope").asText().split(" ")).contains("member.read");
+		assertThat(res1.get("scope").asText().split(" ")).contains("member.write");
+		assertThat(res1.get("expires_in").asLong())
+				.isLessThan(TimeUnit.DAYS.toSeconds(1));
+		assertThat(res1.get("family_name").asText()).isEqualTo("Maki");
+		assertThat(res1.get("given_name").asText()).isEqualTo("Toshiaki");
+		assertThat(res1.get("display_name").asText()).isEqualTo("Maki Toshiaki");
+		assertThat(res1.get("user_id").asText())
+				.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
+		assertThat(res1.get("email").asText()).isEqualTo("maki@example.com");
 	}
 
 	@Test
 	public void testGuestClient() throws IOException {
-		RequestEntity<?> req1 = RequestEntity
-				.post(UriComponentsBuilder.fromUriString(uri)
-						.pathSegment("oauth", "token")
-						.queryParam("grant_type", "password")
-						.queryParam("username", "maki@example.com")
-						.queryParam("password", "demo").build().toUri())
-				.header("Authorization", "Basic " + getBasic("Guest App")).build();
+		RequestEntity<?> req1 = post(fromUriString(uri).pathSegment("oauth", "token")
+				.queryParam("grant_type", "password")
+				.queryParam("username", "maki@example.com").queryParam("password", "demo")
+				.build().toUri())
+						.header("Authorization", "Basic " + getBasic("Guest App"))
+						.build();
 
 		// issue token
 		JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
@@ -101,17 +127,16 @@ public class UaaApplicationTests {
 		assertThat(res1.get("display_name").asText()).isEqualTo("Maki Toshiaki");
 		assertThat(res1.get("user_id").asText())
 				.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
+		assertThat(res1.get("email").asText()).isEqualTo("maki@example.com");
 	}
 
 	@Test
 	public void test3rdClient() throws IOException {
-		RequestEntity<?> req1 = RequestEntity
-				.post(UriComponentsBuilder.fromUriString(uri)
-						.pathSegment("oauth", "token")
-						.queryParam("grant_type", "password")
-						.queryParam("username", "maki@example.com")
-						.queryParam("password", "demo").build().toUri())
-				.header("Authorization", "Basic " + getBasic("3rd App")).build();
+		RequestEntity<?> req1 = post(fromUriString(uri).pathSegment("oauth", "token")
+				.queryParam("grant_type", "password")
+				.queryParam("username", "maki@example.com").queryParam("password", "demo")
+				.build().toUri()).header("Authorization", "Basic " + getBasic("3rd App"))
+						.build();
 
 		thrown.expect(HttpClientErrorException.class);
 		// TODO thrown.expectMessage("401 Unauthorized");
@@ -121,24 +146,21 @@ public class UaaApplicationTests {
 
 	@Test
 	public void testGetMemberByTrustedClient() throws Exception {
-		RequestEntity<?> req1 = RequestEntity
-				.post(UriComponentsBuilder.fromUriString(uri)
-						.pathSegment("oauth", "token")
-						.queryParam("grant_type", "password")
-						.queryParam("username", "maki@example.com")
-						.queryParam("password", "demo").build().toUri())
-				.header("Authorization", "Basic " + getBasic("Moneygr")).build();
+		RequestEntity<?> req1 = post(fromUriString(uri).pathSegment("oauth", "token")
+				.queryParam("grant_type", "password")
+				.queryParam("username", "maki@example.com").queryParam("password", "demo")
+				.build().toUri()).header("Authorization", "Basic " + getBasic("Moneygr"))
+						.build();
 
 		// issue token
 		JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
 		String accessToken = res1.get("access_token").asText();
 
 		// get member
-		RequestEntity<?> req2 = RequestEntity
-				.get(UriComponentsBuilder.fromUriString(uri)
-						.pathSegment("v1", "members", "search", "findByEmail")
+		RequestEntity<?> req2 = get(
+				fromUriString(uri).pathSegment("v1", "members", "search", "findByEmail")
 						.queryParam("email", "maki@example.com").build().toUri())
-				.header("Authorization", "Bearer " + accessToken).build();
+								.header("Authorization", "Bearer " + accessToken).build();
 		JsonNode res2 = restTemplate.exchange(req2, JsonNode.class).getBody();
 		assertThat(res2.get("memberId").asText())
 				.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
@@ -149,24 +171,22 @@ public class UaaApplicationTests {
 
 	@Test
 	public void testGetMemberByGuest() throws Exception {
-		RequestEntity<?> req1 = RequestEntity
-				.post(UriComponentsBuilder.fromUriString(uri)
-						.pathSegment("oauth", "token")
-						.queryParam("grant_type", "password")
-						.queryParam("username", "maki@example.com")
-						.queryParam("password", "demo").build().toUri())
-				.header("Authorization", "Basic " + getBasic("Guest App")).build();
+		RequestEntity<?> req1 = post(fromUriString(uri).pathSegment("oauth", "token")
+				.queryParam("grant_type", "password")
+				.queryParam("username", "maki@example.com").queryParam("password", "demo")
+				.build().toUri())
+						.header("Authorization", "Basic " + getBasic("Guest App"))
+						.build();
 
 		// issue token
 		JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
 		String accessToken = res1.get("access_token").asText();
 
 		// get member
-		RequestEntity<?> req2 = RequestEntity
-				.get(UriComponentsBuilder.fromUriString(uri)
-						.pathSegment("v1", "members", "search", "findByEmail")
+		RequestEntity<?> req2 = get(
+				fromUriString(uri).pathSegment("v1", "members", "search", "findByEmail")
 						.queryParam("email", "maki@example.com").build().toUri())
-				.header("Authorization", "Bearer " + accessToken).build();
+								.header("Authorization", "Bearer " + accessToken).build();
 
 		thrown.expect(HttpClientErrorException.class);
 		// TODO thrown.expectMessage("403 Forbidden");
@@ -176,26 +196,23 @@ public class UaaApplicationTests {
 
 	@Test
 	public void testFindByIdsByTrustedClient() throws Exception {
-		RequestEntity<?> req1 = RequestEntity
-				.post(UriComponentsBuilder.fromUriString(uri)
-						.pathSegment("oauth", "token")
-						.queryParam("grant_type", "password")
-						.queryParam("username", "maki@example.com")
-						.queryParam("password", "demo").build().toUri())
-				.header("Authorization", "Basic " + getBasic("Moneygr")).build();
+		RequestEntity<?> req1 = post(fromUriString(uri).pathSegment("oauth", "token")
+				.queryParam("grant_type", "password")
+				.queryParam("username", "maki@example.com").queryParam("password", "demo")
+				.build().toUri()).header("Authorization", "Basic " + getBasic("Moneygr"))
+						.build();
 
 		// issue token
 		JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
 		String accessToken = res1.get("access_token").asText();
 
 		// get member
-		RequestEntity<?> req3 = RequestEntity
-				.get(UriComponentsBuilder.fromUriString(uri)
-						.pathSegment("v1", "members", "search", "findByIds")
+		RequestEntity<?> req3 = get(
+				fromUriString(uri).pathSegment("v1", "members", "search", "findByIds")
 						.queryParam("ids", res1.get("user_id").asText())
 						.queryParam("ids", "00000000-0000-0000-0000-000000000000").build()
-						.toUri())
-				.header("Authorization", "Bearer " + accessToken).build();
+						.toUri()).header("Authorization", "Bearer " + accessToken)
+								.build();
 		JsonNode res3 = restTemplate.exchange(req3, JsonNode.class).getBody();
 		assertThat(res3.get("_embedded").get("members")).hasSize(1);
 		assertThat(res3.get("_embedded").get("members").get(0).get("memberId").asText())
@@ -225,13 +242,12 @@ public class UaaApplicationTests {
 						+ "', 'OPENID');");
 		assertThat(insertedScope).isEqualTo(1);
 
-		RequestEntity<?> req1 = RequestEntity
-				.post(UriComponentsBuilder.fromUriString(uri)
-						.pathSegment("oauth", "token")
-						.queryParam("grant_type", "password")
-						.queryParam("username", "maki@example.com")
-						.queryParam("password", "demo").build().toUri())
-				.header("Authorization", "Basic " + getBasic("OpenIdApp")).build();
+		RequestEntity<?> req1 = post(fromUriString(uri).pathSegment("oauth", "token")
+				.queryParam("grant_type", "password")
+				.queryParam("username", "maki@example.com").queryParam("password", "demo")
+				.build().toUri())
+						.header("Authorization", "Basic " + getBasic("OpenIdApp"))
+						.build();
 
 		// issue token
 		JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
@@ -239,10 +255,9 @@ public class UaaApplicationTests {
 		String accessToken = res1.get("access_token").asText();
 
 		// get user
-		RequestEntity<?> req2 = RequestEntity
-				.get(UriComponentsBuilder.fromUriString(uri).pathSegment("userinfo")
-						.build().toUri())
-				.header("Authorization", "Bearer " + accessToken).build();
+		RequestEntity<?> req2 = get(
+				fromUriString(uri).pathSegment("userinfo").build().toUri())
+						.header("Authorization", "Bearer " + accessToken).build();
 		JsonNode res2 = restTemplate.exchange(req2, JsonNode.class).getBody();
 		assertThat(res2.get("id").asText())
 				.isEqualTo("00000000-0000-0000-0000-000000000000");
@@ -262,13 +277,11 @@ public class UaaApplicationTests {
 
 	@Test
 	public void testUserWithoutOpenIdScope() throws Exception {
-		RequestEntity<?> req1 = RequestEntity
-				.post(UriComponentsBuilder.fromUriString(uri)
-						.pathSegment("oauth", "token")
-						.queryParam("grant_type", "password")
-						.queryParam("username", "maki@example.com")
-						.queryParam("password", "demo").build().toUri())
-				.header("Authorization", "Basic " + getBasic("Moneygr")).build();
+		RequestEntity<?> req1 = post(fromUriString(uri).pathSegment("oauth", "token")
+				.queryParam("grant_type", "password")
+				.queryParam("username", "maki@example.com").queryParam("password", "demo")
+				.build().toUri()).header("Authorization", "Basic " + getBasic("Moneygr"))
+						.build();
 
 		// issue token
 		JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
@@ -278,10 +291,9 @@ public class UaaApplicationTests {
 		// get user
 		thrown.expect(HttpClientErrorException.class);
 
-		RequestEntity<?> req2 = RequestEntity
-				.get(UriComponentsBuilder.fromUriString(uri).pathSegment("user").build()
-						.toUri())
-				.header("Authorization", "Bearer " + accessToken).build();
+		RequestEntity<?> req2 = get(
+				fromUriString(uri).pathSegment("user").build().toUri())
+						.header("Authorization", "Bearer " + accessToken).build();
 		restTemplate.exchange(req2, JsonNode.class).getBody();
 	}
 
@@ -298,26 +310,24 @@ public class UaaApplicationTests {
 
 		// begin test
 
-		RequestEntity<?> req1 = RequestEntity
-				.post(UriComponentsBuilder.fromUriString(uri)
-						.pathSegment("oauth", "token")
-						.queryParam("grant_type", "password")
-						.queryParam("username", "maki@example.com")
-						.queryParam("password", "demo").build().toUri())
-				.header("Authorization", "Basic " + getBasic("AdminClient")).build();
+		RequestEntity<?> req1 = post(fromUriString(uri).pathSegment("oauth", "token")
+				.queryParam("grant_type", "password")
+				.queryParam("username", "maki@example.com").queryParam("password", "demo")
+				.build().toUri())
+						.header("Authorization", "Basic " + getBasic("AdminClient"))
+						.build();
 
 		// issue token
 		JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
 		String accessToken = res1.get("access_token").asText();
 
 		// get member
-		RequestEntity<?> req3 = RequestEntity
-				.get(UriComponentsBuilder.fromUriString(uri)
-						.pathSegment("v1", "members", "search", "findByIds")
+		RequestEntity<?> req3 = get(
+				fromUriString(uri).pathSegment("v1", "members", "search", "findByIds")
 						.queryParam("ids", res1.get("user_id").asText())
 						.queryParam("ids", "00000000-0000-0000-0000-000000000000").build()
-						.toUri())
-				.header("Authorization", "Bearer " + accessToken).build();
+						.toUri()).header("Authorization", "Bearer " + accessToken)
+								.build();
 		JsonNode res3 = restTemplate.exchange(req3, JsonNode.class).getBody();
 		assertThat(res3.get("_embedded").get("members")).hasSize(1);
 		assertThat(res3.get("_embedded").get("members").get(0).get("memberId").asText())
@@ -347,24 +357,22 @@ public class UaaApplicationTests {
 
 		// begin test
 
-		RequestEntity<?> req1 = RequestEntity
-				.post(UriComponentsBuilder.fromUriString(uri)
-						.pathSegment("oauth", "token")
-						.queryParam("grant_type", "client_credentials").build().toUri())
-				.header("Authorization", "Basic " + getBasic("AdminClient")).build();
+		RequestEntity<?> req1 = post(fromUriString(uri).pathSegment("oauth", "token")
+				.queryParam("grant_type", "client_credentials").build().toUri())
+						.header("Authorization", "Basic " + getBasic("AdminClient"))
+						.build();
 
 		// issue token
 		JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
 		String accessToken = res1.get("access_token").asText();
 
 		// get member
-		RequestEntity<?> req3 = RequestEntity
-				.get(UriComponentsBuilder.fromUriString(uri)
-						.pathSegment("v1", "members", "search", "findByIds")
+		RequestEntity<?> req3 = get(
+				fromUriString(uri).pathSegment("v1", "members", "search", "findByIds")
 						.queryParam("ids", "00000000-0000-0000-0000-000000000000")
 						.queryParam("ids", "00000000-0000-0000-0000-000000000000").build()
-						.toUri())
-				.header("Authorization", "Bearer " + accessToken).build();
+						.toUri()).header("Authorization", "Bearer " + accessToken)
+								.build();
 		JsonNode res3 = restTemplate.exchange(req3, JsonNode.class).getBody();
 		assertThat(res3.get("_embedded").get("members")).hasSize(1);
 		assertThat(res3.get("_embedded").get("members").get(0).get("memberId").asText())

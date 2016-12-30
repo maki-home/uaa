@@ -9,7 +9,7 @@ public class MemberUserDetails extends User {
 	private final Member member;
 
 	public MemberUserDetails(Member member) {
-		super(member.getEmail(), member.getPassword(),
+		super(member.getMemberId(), member.getPassword(),
 				member.getRoles().stream().map(r -> "ROLE_" + r.name().toUpperCase())
 						.map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
 		this.member = member;
