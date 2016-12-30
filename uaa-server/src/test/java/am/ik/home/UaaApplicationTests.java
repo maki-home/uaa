@@ -79,6 +79,33 @@ public class UaaApplicationTests {
 	}
 
 	@Test
+	public void testTrustedClient_loginByMemberId() throws IOException {
+		RequestEntity<?> req1 = RequestEntity
+				.post(UriComponentsBuilder.fromUriString(uri)
+						.pathSegment("oauth", "token")
+						.queryParam("grant_type", "password")
+						.queryParam("username", "00000000-0000-0000-0000-000000000000")
+						.queryParam("password", "demo").build().toUri())
+				.header("Authorization", "Basic " + getBasic("Moneygr")).build();
+
+		// issue token
+		JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
+
+		assertThat(res1.get("access_token").asText()).isNotEmpty();
+		assertThat(res1.get("refresh_token").asText()).isNotEmpty();
+		assertThat(res1.get("scope").asText().split(" ")).hasSize(2);
+		assertThat(res1.get("scope").asText().split(" ")).contains("member.read");
+		assertThat(res1.get("scope").asText().split(" ")).contains("member.write");
+		assertThat(res1.get("expires_in").asLong())
+				.isLessThan(TimeUnit.DAYS.toSeconds(1));
+		assertThat(res1.get("family_name").asText()).isEqualTo("Maki");
+		assertThat(res1.get("given_name").asText()).isEqualTo("Toshiaki");
+		assertThat(res1.get("display_name").asText()).isEqualTo("Maki Toshiaki");
+		assertThat(res1.get("user_id").asText())
+				.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
+	}
+
+	@Test
 	public void testGuestClient() throws IOException {
 		RequestEntity<?> req1 = RequestEntity
 				.post(UriComponentsBuilder.fromUriString(uri)
