@@ -18,15 +18,18 @@ public class UaaTokenEnhancer implements TokenEnhancer {
 	public OAuth2AccessToken enhance(OAuth2AccessToken accessToken,
 			OAuth2Authentication authentication) {
 		if (authentication.getPrincipal() instanceof MemberUserDetails) {
-			MemberUserDetails userDetails = (MemberUserDetails) authentication.getPrincipal();
+			MemberUserDetails userDetails = (MemberUserDetails) authentication
+					.getPrincipal();
 			Member member = userDetails.getMember();
 			Map<String, Object> additionalInfo = new LinkedHashMap<>();
 			additionalInfo.put("user_id", member.getMemberId());
+			additionalInfo.put("email", member.getEmail());
 			additionalInfo.put("family_name", member.getFamilyName());
 			additionalInfo.put("given_name", member.getGivenName());
 			additionalInfo.put("display_name",
 					member.getFamilyName() + " " + member.getGivenName());
-			((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
+			((DefaultOAuth2AccessToken) accessToken)
+					.setAdditionalInformation(additionalInfo);
 		}
 		return accessToken;
 	}

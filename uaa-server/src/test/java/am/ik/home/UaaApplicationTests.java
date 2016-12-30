@@ -76,6 +76,7 @@ public class UaaApplicationTests {
 		assertThat(res1.get("display_name").asText()).isEqualTo("Maki Toshiaki");
 		assertThat(res1.get("user_id").asText())
 				.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
+		assertThat(res1.get("email").asText()).isEqualTo("maki@example.com");
 	}
 
 	@Test
@@ -101,6 +102,7 @@ public class UaaApplicationTests {
 		assertThat(res1.get("display_name").asText()).isEqualTo("Maki Toshiaki");
 		assertThat(res1.get("user_id").asText())
 				.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
+		assertThat(res1.get("email").asText()).isEqualTo("maki@example.com");
 	}
 
 	@Test
@@ -125,6 +127,7 @@ public class UaaApplicationTests {
 		assertThat(res1.get("display_name").asText()).isEqualTo("Maki Toshiaki");
 		assertThat(res1.get("user_id").asText())
 				.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
+		assertThat(res1.get("email").asText()).isEqualTo("maki@example.com");
 	}
 
 	@Test
