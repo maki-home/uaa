@@ -33,7 +33,7 @@ import am.ik.home.app.AppRole;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
-		"spring.datasource.url=jdbc:h2:mem:test;DB_CLOSE_ON_EXIT=FALSE" })
+		"spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:h2:mem:test;DB_CLOSE_ON_EXIT=FALSE}" })
 public class UaaApplicationTests {
 
 	@Rule
