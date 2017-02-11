@@ -14,6 +14,7 @@ spring.datasource.url: jdbc:mysql://localhost:3306/uaa
 spring.datasource.username: root
 spring.datasource.password:
 management.info.git.mode: full
+management.context-path: /admin
 #logging.level.org.springframework.security: DEBUG
 
 # openssl genrsa -out private.pem 2048
