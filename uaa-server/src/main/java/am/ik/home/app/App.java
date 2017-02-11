@@ -1,6 +1,7 @@
 package am.ik.home.app;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +25,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class App implements Serializable {
+	public static final String DEFAULT_RESOURCE_ID = "oauth2-resource";
 	@Id
 	@Column(columnDefinition = "varchar(36)")
 	@Size(min = 36, max = 36)
@@ -45,6 +47,12 @@ public class App implements Serializable {
 	@Enumerated(EnumType.STRING)
 	@NotEmpty
 	private Set<AppGrantType> grantTypes;
+	@ElementCollection(fetch = FetchType.EAGER)
+	private Set<String> resourceIds = new HashSet<String>() {
+		{
+			add(DEFAULT_RESOURCE_ID);
+		}
+	};
 	@ElementCollection(fetch = FetchType.EAGER)
 	private Set<String> scopes;
 	@ElementCollection(fetch = FetchType.EAGER)

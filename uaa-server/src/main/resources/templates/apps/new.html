@@ -72,6 +72,17 @@
                 </div>
             </div>
             <div class="uk-form-row">
+                <label class="uk-form-label" th:for="resourceIds">Resource Ids (Comma separated)</label>
+                <div class="uk-form-controls uk-grid">
+                    <div class="uk-width-1-1">
+                        <input type="text" th:field="*{resourceIds}" class="uk-width-1-1"
+                               th:classappend="${#fields.hasErrors('resourceIds')}? 'uk-form-danger'"/>
+                        <span th:if="${#fields.hasErrors('resourceIds')}" th:errors="*{resourceIds}"
+                              class="uk-text-danger">error!</span>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-form-row">
                 <label class="uk-form-label" th:for="scopes">Scopes (Comma separated)</label>
                 <div class="uk-form-controls uk-grid">
                     <div class="uk-width-1-1">
