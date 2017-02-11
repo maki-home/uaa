@@ -1,29 +1,32 @@
 package am.ik.home.app;
 
-import java.util.stream.Collectors;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toSet;
 
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
+import org.springframework.util.CollectionUtils;
 
 public class AppClientDetails extends BaseClientDetails {
 
 	private final App app;
 
 	public AppClientDetails(App app) {
-		super(app.getAppId(), "oauth2-resource",
+		super(app.getAppId(),
+				CollectionUtils.isEmpty(app.getResourceIds()) ? App.DEFAULT_RESOURCE_ID
+						: app.getResourceIds().stream().collect(joining(",")),
 				app.getScopes().stream().distinct().map(String::toLowerCase)
-						.collect(Collectors.joining(",")),
+						.collect(joining(",")),
 				app.getGrantTypes().stream().map(Enum::name).distinct()
-						.map(String::toLowerCase).collect(Collectors.joining(",")),
+						.map(String::toLowerCase).collect(joining(",")),
 				app.getRoles().stream().map(Enum::name).map(String::toUpperCase)
-						.map(s -> "ROLE_" + s).distinct()
-						.collect(Collectors.joining(",")),
+						.map(s -> "ROLE_" + s).distinct().collect(joining(",")),
 				app.getRedirectUrls().stream().distinct().map(String::toLowerCase)
-						.collect(Collectors.joining(",")));
+						.collect(joining(",")));
 		setClientSecret(app.getAppSecret());
 		setAccessTokenValiditySeconds(app.getAccessTokenValiditySeconds());
 		setRefreshTokenValiditySeconds(app.getRefreshTokenValiditySeconds());
 		setAutoApproveScopes(app.getAutoApproveScopes().stream().map(String::toLowerCase)
-				.collect(Collectors.toSet()));
+				.collect(toSet()));
 		this.app = app;
 	}
 
