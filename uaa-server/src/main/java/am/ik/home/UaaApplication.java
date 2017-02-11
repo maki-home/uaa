@@ -93,7 +93,7 @@ public class UaaApplication {
 		protected void configure(HttpSecurity http) throws Exception {
 			http.formLogin().loginPage("/login").permitAll().and().requestMatchers()
 					.antMatchers("/", "/apps", "/login", "/logout", "/oauth/authorize",
-							"/oauth/confirm_access")
+							"/oauth/confirm_access", "/admin/**")
 					.and().authorizeRequests().antMatchers("/login**").permitAll()
 					.antMatchers("/apps**").access("hasRole('ADMIN')").anyRequest()
 					.authenticated().and().rememberMe()

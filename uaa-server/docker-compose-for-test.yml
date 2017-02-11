@@ -1,0 +1,13 @@
+version: "2"
+
+services:
+  uaa-db:
+    image: mysql:5.7
+    container_name: mysql
+    ports:
+      - "13306:3306"
+    environment:
+      MYSQL_USER: uaa-user
+      MYSQL_PASSWORD: uaa-pass
+      MYSQL_DATABASE: uaa
+      MYSQL_ROOT_PASSWORD: keepitsimple
