@@ -1,4 +1,9 @@
 ---
+resource_types:
+- name: pull-request
+  type: docker-image
+  source:
+    repository: jtarchie/pr
 resources:
   - name: repo-prod
     type: git
@@ -80,7 +85,38 @@ resources:
       username: {{docker-username}}
       password: {{docker-password}}
       email: {{docker-email}}
+  - name: repo-pr
+    type: pull-request
+    source:
+      repo: maki-home/uaa
+      access_token: {{github-access-token}}
 jobs:
+  ############# Pull Request #############
+
+  - name: unit-test-pr
+    plan:
+      - aggregate:
+        - get: repo
+          resource: repo-pr
+          trigger: true
+        - get: utils
+        - get: m2
+      - put: repo-pr
+        params:
+          pagh: repo-pr
+          status: pending
+      - task: unit
+        file: utils/tasks/unit-test.yml
+        on_success:
+          put: repo-pr
+          params:
+            path: repo-pr
+            status: success
+        on_failure:
+          put: repo-pr
+          params:
+            path: repo-pr
+            status: failure
   ############# Dev #############
   - name: unit-test-h2-dev
     plan:
