@@ -101,7 +101,8 @@ public class UaaIT {
 		assertThat(member.getEmail()).isEqualTo("maki@example.com");
 		assertThat(member.getGivenName()).isEqualTo("Toshiaki");
 		assertThat(member.getFamilyName()).isEqualTo("Maki");
-		assertThat(member.getRoles()).containsExactly(MemberRole.USER, MemberRole.ADMIN);
+		assertThat(member.getRoles()).containsExactly(MemberRole.USER, MemberRole.ADMIN,
+				MemberRole.ACTUATOR);
 	}
 
 	private void assertThatMemberIsDemo(Member member) {
@@ -261,7 +262,8 @@ public class UaaIT {
 		assertThat(user.getUserId()).isEqualTo("00000000-0000-0000-0000-000000000000");
 		assertThat(user.getEmail()).isEqualTo("maki@example.com");
 		assertThat(user.getDisplayName()).isEqualTo("Maki Toshiaki");
-		assertThat(user.getAuthorities()).containsExactly("ROLE_ADMIN", "ROLE_USER", "ROLE_ACTUATOR");
+		assertThat(user.getAuthorities()).containsExactly("ROLE_ADMIN", "ROLE_USER",
+				"ROLE_ACTUATOR");
 		assertThat(user.getScope()).containsExactly("member.read", "member.write");
 	}
 }
