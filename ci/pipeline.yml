@@ -103,19 +103,19 @@ jobs:
         - get: m2
       - put: repo-pr
         params:
-          pagh: repo-pr
+          path: repo
           status: pending
       - task: unit
         file: utils/tasks/unit-test.yml
         on_success:
           put: repo-pr
           params:
-            path: repo-pr
+            path: repo
             status: success
         on_failure:
           put: repo-pr
           params:
-            path: repo-pr
+            path: repo
             status: failure
   ############# Dev #############
   - name: unit-test-h2-dev
