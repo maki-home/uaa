@@ -81,7 +81,7 @@
                                   th:checked="${memberForm.roles != null and memberForm.roles.contains(T(am.ik.home.member.MemberRole).ADMIN)}"/>
                         ADMIN</label>
                     <label><input name="roles" type="checkbox" value="ACTUATOR"
-                                  th:checked="${memberForm.roles != null and memberForm.roles.contains(T(am.ik.home.member.MemberRole).ACTUATOR}"/>
+                                  th:checked="${memberForm.roles != null and memberForm.roles.contains(T(am.ik.home.member.MemberRole).ACTUATOR)}"/>
                         ACTUATOR</label>
                     <span th:if="${#fields.hasErrors('roles')}"
                           th:errors="*{roles}"
