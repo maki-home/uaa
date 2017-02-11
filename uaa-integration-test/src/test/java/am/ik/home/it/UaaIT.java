@@ -261,7 +261,7 @@ public class UaaIT {
 		assertThat(user.getUserId()).isEqualTo("00000000-0000-0000-0000-000000000000");
 		assertThat(user.getEmail()).isEqualTo("maki@example.com");
 		assertThat(user.getDisplayName()).isEqualTo("Maki Toshiaki");
-		assertThat(user.getAuthorities()).containsExactly("ROLE_ADMIN", "ROLE_USER");
+		assertThat(user.getAuthorities()).containsExactly("ROLE_ADMIN", "ROLE_USER", "ROLE_ACTUATOR");
 		assertThat(user.getScope()).containsExactly("member.read", "member.write");
 	}
 }
