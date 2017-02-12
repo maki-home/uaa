@@ -6,6 +6,7 @@ import static org.springframework.http.RequestEntity.post;
 import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -63,7 +64,6 @@ public class UaaApplicationTests {
 
 		// issue token
 		JsonNode res1 = restTemplate.exchange(req1, JsonNode.class).getBody();
-
 		assertThat(res1.get("access_token").asText()).isNotEmpty();
 		assertThat(res1.get("refresh_token").asText()).isNotEmpty();
 		assertThat(res1.get("scope").asText().split(" ")).hasSize(2);
@@ -77,6 +77,11 @@ public class UaaApplicationTests {
 		assertThat(res1.get("user_id").asText())
 				.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
 		assertThat(res1.get("email").asText()).isEqualTo("maki@example.com");
+		assertThat(res1.get("iss").asText()).isEqualTo("uaa-test");
+		assertThat(res1.get("iat").asLong())
+				.isLessThanOrEqualTo(Instant.now().getEpochSecond());
+		assertThat(res1.get("exp").asLong())
+				.isGreaterThanOrEqualTo(Instant.now().getEpochSecond());
 	}
 
 	@Test
@@ -103,6 +108,11 @@ public class UaaApplicationTests {
 		assertThat(res1.get("user_id").asText())
 				.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
 		assertThat(res1.get("email").asText()).isEqualTo("maki@example.com");
+		assertThat(res1.get("iss").asText()).isEqualTo("uaa-test");
+		assertThat(res1.get("iat").asLong())
+				.isLessThanOrEqualTo(Instant.now().getEpochSecond());
+		assertThat(res1.get("exp").asLong())
+				.isGreaterThanOrEqualTo(Instant.now().getEpochSecond());
 	}
 
 	@Test
@@ -128,6 +138,11 @@ public class UaaApplicationTests {
 		assertThat(res1.get("user_id").asText())
 				.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}");
 		assertThat(res1.get("email").asText()).isEqualTo("maki@example.com");
+		assertThat(res1.get("iss").asText()).isEqualTo("uaa-test");
+		assertThat(res1.get("iat").asLong())
+				.isLessThanOrEqualTo(Instant.now().getEpochSecond());
+		assertThat(res1.get("exp").asLong())
+				.isGreaterThanOrEqualTo(Instant.now().getEpochSecond());
 	}
 
 	@Test
