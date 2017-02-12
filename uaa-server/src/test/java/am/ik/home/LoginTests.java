@@ -36,7 +36,8 @@ import am.ik.home.app.AppRepository;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
-		"spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:h2:mem:test;DB_CLOSE_ON_EXIT=FALSE}" })
+		"spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:h2:mem:test;DB_CLOSE_ON_EXIT=FALSE}",
+		"spring.application.name=uaa-test" })
 public class LoginTests {
 	@Value("${SERVER_URI:http://localhost:${local.server.port}}/uaa")
 	String uri;
