@@ -4,7 +4,7 @@
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Maki Home SSO</title>
+    <title th:text="${@whitelabelConfigProps.applicationName}">Maki Home SSO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/2.26.3/css/uikit.gradient.min.css"/>
 </head>
 
@@ -12,7 +12,7 @@
 
 <div class="uk-vertical-align uk-text-center uk-height-1-1">
     <div class="uk-vertical-align-middle">
-        <h1>Maki Home SSO Login Form</h1>
+        <h1><span th:text="${@whitelabelConfigProps.applicationName}">Maki Home SSO</span> Login Form</h1>
 
         <p class="uk-alert uk-alert-danger" th:if="${param.error}">
             Login failed ...
