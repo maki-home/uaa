@@ -1,7 +1,7 @@
 package am.ik.home;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 import lombok.Data;
@@ -9,7 +9,7 @@ import lombok.Data;
 @ConfigurationProperties(prefix = "jwt")
 @Validated
 @Data
-@Configuration
+@Component
 public class JwtConfigProps {
 	private String issuer;
 	private String verifierKey;
