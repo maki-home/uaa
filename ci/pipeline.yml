@@ -140,41 +140,7 @@ jobs:
             save: true
       - task: unit
         privileged: true
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: making/dcind-jdk
-          inputs:
-            - name: repo
-            - name: utils
-            - name: m2
-            - name: mysql
-          run:
-            path: sh
-            args:
-            - -c
-            - |
-              set -e
-              source /docker-lib.sh
-              start_docker
-              # This loading is not nesessary but enalbes caching by Concourse
-              docker load -i mysql/image
-              docker tag "$(cat mysql/image-id)" "$(cat mysql/repository):$(cat mysql/tag)"
-              docker images
-
-              docker-compose -f repo/uaa-server/docker-compose-for-test.yml up -d
-              sh utils/scripts/add-repos-in-pom-xml.sh repo && \
-              sh utils/scripts/mvn.sh test repo
-              docker-compose -f repo/uaa-server/docker-compose-for-test.yml down
-          params:
-            _JAVA_OPTIONS: -Duser.timezone=Asia/Tokyo -Duser.language=ja -Duser.country=JP -Djava.security.egd=file:/dev/./urandom
-            SPRING_DATASOURCE_USERNAME: uaa-user
-            SPRING_DATASOURCE_PASSWORD: uaa-pass
-            SPRING_DATASOURCE_URL: jdbc:mysql://localhost:13306/uaa?useSSL=false
-            SPRING_JPA_DATABASE: mysql
-
+        file: repo/ci/tasks/unit-test-with-mysql.yml
   - name: deploy-to-nexus-dev
     plan:
       - aggregate:
