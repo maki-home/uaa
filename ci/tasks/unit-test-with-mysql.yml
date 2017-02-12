@@ -1,0 +1,23 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: making/dcind-jdk
+inputs:
+  - name: repo
+  - name: utils
+  - name: m2
+  - name: mysql
+run:
+  path: sh
+  args:
+  - -c
+  - |
+    repo/ci/tasks/unit-test-with-mysql.sh
+params:
+  _JAVA_OPTIONS: -Duser.timezone=Asia/Tokyo -Duser.language=ja -Duser.country=JP -Djava.security.egd=file:/dev/./urandom
+  SPRING_DATASOURCE_USERNAME: uaa-user
+  SPRING_DATASOURCE_PASSWORD: uaa-pass
+  SPRING_DATASOURCE_URL: jdbc:mysql://localhost:13306/uaa?useSSL=false
+  SPRING_JPA_DATABASE: mysql

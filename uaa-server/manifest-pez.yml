@@ -12,3 +12,5 @@ applications:
     services:
     - uaa-db
     - logstash
+    env:
+      whitelabel.application-name: Maki Home SSO

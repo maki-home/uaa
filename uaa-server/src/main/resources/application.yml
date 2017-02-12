@@ -3,6 +3,7 @@ server.context-path: /uaa
 spring.jpa.hibernate.ddl-auto: none
 server.session.timeout: 86400
 #spring.jpa.properties.hibernate.format_sql: true
+spring.application.name: maki-uaa
 spring.datasource.sql-script-encoding: UTF-8
 spring.data.rest.base-path: /v1
 security.oauth2.authorization.token-key-access: permitAll()
