@@ -92,7 +92,6 @@ resources:
       access_token: {{github-access-token}}
 jobs:
   ############# Pull Request #############
-
   - name: unit-test-pr
     plan:
       - aggregate:
