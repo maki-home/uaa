@@ -141,7 +141,7 @@ jobs:
           params:
             channel: '#concourse'
             text: |
-              <!here> :rotating_light: Unit Test for *Dev (H2)* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :rotating_light: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: unit-test-mysql-dev
     plan:
       - aggregate:
@@ -161,7 +161,7 @@ jobs:
           params:
             channel: '#concourse'
             text: |
-              <!here> :rotating_light: Unit Test for *Dev (MySQL)* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :rotating_light: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: deploy-to-nexus-dev
     plan:
       - aggregate:
@@ -224,13 +224,13 @@ jobs:
           params:
             channel: '#concourse'
             text: |
-              <!here> :white_check_mark: Deploy to CF for *Dev* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :white_check_mark: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
         on_failure:
           put: slack-alert
           params:
             channel: '#concourse'
             text: |
-              <!here> :rotating_light: Deploy to CF for *Dev* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :rotating_light: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: integration-test-dev
     plan:
       - aggregate:
@@ -250,13 +250,13 @@ jobs:
           params:
             channel: '#concourse'
             text: |
-              <!here> :white_check_mark: Integration Test for *Dev* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :white_check_mark: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
         on_failure:
           put: slack-alert
           params:
             channel: '#concourse'
             text: |
-              <!here> :rotating_light: Integration Test for *Dev* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :rotating_light: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   ############# Staging #############
   - name: unit-test-staging
     plan:
@@ -273,7 +273,7 @@ jobs:
           params:
             channel: '#concourse'
             text: |
-              <!here> :rotating_light: Unit Test for *Staging* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :rotating_light: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: deploy-to-nexus-staging
     plan:
       - aggregate:
@@ -334,13 +334,13 @@ jobs:
           params:
             channel: '#concourse'
             text: |
-              <!here> :white_check_mark: Deploy to CF for *Staging* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :white_check_mark: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
         on_failure:
           put: slack-alert
           params:
             channel: '#concourse'
             text: |
-              <!here> :rotating_light: Deploy to CF for *Staging* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :rotating_light: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: integration-test-staging
     plan:
       - aggregate:
@@ -360,13 +360,13 @@ jobs:
           params:
             channel: '#concourse'
             text: |
-              <!here> :white_check_mark: Integration Test for *Staging* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :white_check_mark: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
         on_failure:
           put: slack-alert
           params:
             channel: '#concourse'
             text: |
-              <!here> :rotating_light: Integration Test for *Staging* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :rotating_light: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   ############# Prod #############
   - name: merge-release-to-master
     public: true
@@ -403,7 +403,7 @@ jobs:
           params:
             channel: '#concourse'
             text: |
-              <!here> :rotating_light: Unit Test for *Prod* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :rotating_light: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: tag-master
     public: true
     plan:
@@ -484,13 +484,13 @@ jobs:
           params:
             channel: '#concourse'
             text: |
-              <!here> :white_check_mark: Deploy to CF for *Prod* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :white_check_mark: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
         on_failure:
           put: slack-alert
           params:
             channel: '#concourse'
             text: |
-              <!here> :rotating_light: Deploy to CF for *Prod* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :rotating_light: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: deploy-to-dockerhub-prod
     plan:
       - aggregate:
