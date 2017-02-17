@@ -4,6 +4,11 @@ resource_types:
   type: docker-image
   source:
     repository: jtarchie/pr
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: v1.1.3
 resources:
   - name: repo-prod
     type: git
@@ -90,6 +95,10 @@ resources:
     source:
       repo: maki-home/uaa
       access_token: {{github-access-token}}
+  - name: slack-alert
+    type: slack-notification
+    source:
+      url: {{slack-webhook-url}}
 jobs:
   ############# Pull Request #############
   - name: unit-test-pr
@@ -127,6 +136,12 @@ jobs:
         - get: m2
       - task: unit
         file: utils/tasks/unit-test.yml
+        on_failure:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :rotating_light: Unit Test for *Dev (H2)* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: unit-test-mysql-dev
     plan:
       - aggregate:
@@ -141,6 +156,12 @@ jobs:
       - task: unit
         privileged: true
         file: repo/ci/tasks/unit-test-with-mysql.yml
+        on_failure:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :rotating_light: Unit Test for *Dev (MySQL)* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: deploy-to-nexus-dev
     plan:
       - aggregate:
@@ -198,6 +219,18 @@ jobs:
           manifest: repo/uaa-server/manifest-pez-dev.yml
           path: output/app.jar
           current_app_name: home-uaa-dev
+        on_success:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :white_check_mark: Deploy for *Dev* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+        on_failure:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :rotating_light: Deploy for *Dev* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: integration-test-dev
     plan:
       - aggregate:
@@ -212,6 +245,18 @@ jobs:
         file: utils/tasks/integration-test.yml
         params:
           API_BASE: https://home-uaa-dev.cfapps.pez.pivotal.io/uaa
+        on_success:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :white_check_mark: Integration Test for *Dev* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+        on_failure:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :rotating_light: Integration Test for *Dev* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   ############# Staging #############
   - name: unit-test-staging
     plan:
@@ -223,6 +268,12 @@ jobs:
         - get: m2
       - task: unit
         file: utils/tasks/unit-test.yml
+        on_failure:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :rotating_light: Unit Test for *Staging* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: deploy-to-nexus-staging
     plan:
       - aggregate:
@@ -278,6 +329,18 @@ jobs:
           manifest: repo/uaa-server/manifest-pez-staging.yml
           path: output/app.jar
           current_app_name: home-uaa-staging
+        on_success:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :white_check_mark: Deploy for *Staging* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+        on_failure:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :rotating_light: Deploy for *Staging* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: integration-test-staging
     plan:
       - aggregate:
@@ -292,6 +355,18 @@ jobs:
         file: utils/tasks/integration-test.yml
         params:
           API_BASE: https://home-uaa-staging.cfapps.pez.pivotal.io/uaa
+        on_success:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :white_check_mark: Integration Test for *Staging* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+        on_failure:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :rotating_light: Integration Test for *Staging* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   ############# Prod #############
   - name: merge-release-to-master
     public: true
@@ -323,6 +398,12 @@ jobs:
         - get: m2
       - task: unit
         file: utils/tasks/unit-test.yml
+        on_failure:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :rotating_light: Unit Test for *Prod* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: tag-master
     public: true
     plan:
@@ -398,6 +479,18 @@ jobs:
           manifest: repo/uaa-server/manifest-pez.yml
           path: output/app.jar
           current_app_name: home-uaa
+        on_success:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :white_check_mark: Deploy to CF for *Prod* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+        on_failure:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :rotating_light: Deploy to CF for *Prod* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: deploy-to-dockerhub-prod
     plan:
       - aggregate:
