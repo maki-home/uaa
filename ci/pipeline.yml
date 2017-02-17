@@ -224,13 +224,13 @@ jobs:
           params:
             channel: '#concourse'
             text: |
-              <!here> :white_check_mark: Deploy for *Dev* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :white_check_mark: Deploy to CF for *Dev* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
         on_failure:
           put: slack-alert
           params:
             channel: '#concourse'
             text: |
-              <!here> :rotating_light: Deploy for *Dev* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :rotating_light: Deploy to CF for *Dev* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: integration-test-dev
     plan:
       - aggregate:
@@ -334,13 +334,13 @@ jobs:
           params:
             channel: '#concourse'
             text: |
-              <!here> :white_check_mark: Deploy for *Staging* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :white_check_mark: Deploy to CF for *Staging* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
         on_failure:
           put: slack-alert
           params:
             channel: '#concourse'
             text: |
-              <!here> :rotating_light: Deploy for *Staging* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+              <!here> :rotating_light: Deploy to CF for *Staging* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: integration-test-staging
     plan:
       - aggregate:
