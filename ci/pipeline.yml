@@ -1,4 +1,53 @@
 ---
+groups:
+- name: all
+  jobs:
+  - unit-test-pr
+  - unit-test-h2-dev
+  - unit-test-mysql-dev
+  - deploy-to-nexus-dev
+  - deploy-to-central-dev
+  - deploy-to-cf-dev
+  - integration-test-dev
+  - unit-test-staging
+  - deploy-to-nexus-staging
+  - deploy-to-central-staging
+  - deploy-to-cf-staging
+  - integration-test-staging
+  - merge-release-to-master
+  - unit-test-prod
+  - tag-master
+  - deploy-to-nexus-prod
+  - deploy-to-central-prod
+  - deploy-to-cf-prod
+  - re-deploy-to-cf-prod
+  - deploy-to-dockerhub-prod
+  - bump-to-next-minor-version
+  - merge-release-to-develop-for-minor
+  - bump-to-next-major-version
+  - merge-release-to-develop-for-major
+  - bump-to-next-patch-version
+  - merge-release-to-develop-for-patch
+
+- name: main
+  jobs:
+  - unit-test-h2-dev
+  - unit-test-mysql-dev
+  - deploy-to-nexus-dev
+  - deploy-to-cf-dev
+  - integration-test-dev
+  - unit-test-staging
+  - deploy-to-nexus-staging
+  - deploy-to-cf-staging
+  - integration-test-staging
+  - merge-release-to-master
+  - unit-test-prod
+  - tag-master
+  - deploy-to-nexus-prod
+  - deploy-to-cf-prod
+  - bump-to-next-minor-version
+  - merge-release-to-develop-for-minor
+
 resource_types:
 - name: pull-request
   type: docker-image
