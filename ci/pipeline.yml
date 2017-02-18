@@ -491,6 +491,43 @@ jobs:
             channel: '#concourse'
             text: |
               <!here> :rotating_light: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+  - name: re-deploy-to-cf-prod
+    plan:
+      - aggregate:
+        - get: repo
+          resource: repo-prod
+          passed:
+          - deploy-to-nexus-prod
+        - get: repo-version
+        - get: utils
+      - task: download
+        file: utils/tasks/download-latest.yml
+        on_failure:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :rotating_light: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+        params:
+          GROUP_ID: am.ik.home
+          ARTIFACT_ID: uaa-server
+      - put: cf-prod
+        params:
+          manifest: repo/uaa-server/manifest-pez.yml
+          path: output/app.jar
+          current_app_name: home-uaa
+        on_success:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :white_check_mark: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* succeeded with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
+        on_failure:
+          put: slack-alert
+          params:
+            channel: '#concourse'
+            text: |
+              <!here> :rotating_light: *$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME* failed with build <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|$BUILD_NAME>!
   - name: deploy-to-dockerhub-prod
     plan:
       - aggregate:
