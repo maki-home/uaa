@@ -14,3 +14,4 @@ applications:
     - logstash
     env:
       whitelabel.application-name: Maki Home SSO
+      server.context-path: ""
