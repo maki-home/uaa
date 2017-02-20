@@ -10,6 +10,6 @@ applications:
       - ik.am
       - cfapps.pez.pivotal.io
     services:
-    - uaa-db-dev
+    - uaa-db
     env:
       server.context-path: ""

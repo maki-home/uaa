@@ -9,6 +9,6 @@ applications:
     domains:
       - cfapps.pez.pivotal.io
     services:
-    - uaa-db-staging
+    - uaa-db
     env:
       server.context-path: ""
