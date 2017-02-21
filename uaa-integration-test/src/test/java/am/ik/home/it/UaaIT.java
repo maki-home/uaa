@@ -67,6 +67,7 @@ public class UaaIT {
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.setInterceptors(singletonList((request, body, execution) -> {
 			request.getHeaders().add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+			request.getHeaders().add(HttpHeaders.USER_AGENT, "Mozilla/5.0");
 			return execution.execute(request, body);
 		}));
 		restTemplate.getMessageConverters().stream()
@@ -89,6 +90,7 @@ public class UaaIT {
 				clientHttpRequestFactory, createRestTemplate(accessToken));
 		asyncRestTemplate.setInterceptors(singletonList((request, body, execution) -> {
 			request.getHeaders().add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+			request.getHeaders().add(HttpHeaders.USER_AGENT, "Mozilla/5.0");
 			return execution.executeAsync(request, body);
 		}));
 		this.asyncRestTemplate = asyncRestTemplate;
