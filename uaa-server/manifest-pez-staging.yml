@@ -7,7 +7,7 @@ applications:
     buildpack: java_buildpack_offline
     host: home-staging
     domains:
-      - cfapps.pez.pivotal.io
+      - ik.am
     services:
     - uaa-db
     env:

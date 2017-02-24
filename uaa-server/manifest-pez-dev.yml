@@ -8,7 +8,6 @@ applications:
     host: home-dev
     domains:
       - ik.am
-      - cfapps.pez.pivotal.io
     services:
     - uaa-db
     env:

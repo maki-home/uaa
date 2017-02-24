@@ -311,7 +311,7 @@ jobs:
       - task: it
         file: utils/tasks/integration-test.yml
         params:
-          API_BASE: https://home-dev.cfapps.pez.pivotal.io
+          API_BASE: https://home-dev.ik.am
         on_success:
           put: slack-alert
           params:
@@ -439,7 +439,7 @@ jobs:
       - task: it
         file: utils/tasks/integration-test.yml
         params:
-          API_BASE: https://home-staging.cfapps.pez.pivotal.io
+          API_BASE: https://home-staging.ik.am
         on_success:
           put: slack-alert
           params:
