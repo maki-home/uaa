@@ -36,7 +36,7 @@ public class UaaIT {
 	public void setUp() {
 		apiBase = System.getenv("API_BASE");
 		if (apiBase == null) {
-			apiBase = "https://home-dev.cfapps.pez.pivotal.io";
+			apiBase = "https://home-dev.ik.am";
 		}
 	}
 
