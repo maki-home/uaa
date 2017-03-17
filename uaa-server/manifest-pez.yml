@@ -7,8 +7,8 @@ applications:
     buildpack: java_buildpack_offline
     host: home
     domains:
-      - ik.am
-      - cfapps.pez.pivotal.io
+    - ik.am
+    - pezapp.io
     services:
     - uaa-db
     - logstash

@@ -7,5 +7,6 @@
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
-    <logger name="am.ik.home" level="DEBUG" />
+    <logger name="org.springframework.web.client.RestTemplate" level="DEBUG"/>
+    <logger name="am.ik.home" level="DEBUG"/>
 </configuration>
