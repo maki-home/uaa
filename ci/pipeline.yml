@@ -286,6 +286,9 @@ jobs:
           manifest: repo/uaa-server/manifest-pez-dev.yml
           path: output/app.jar
           current_app_name: home-uaa-dev
+          environment_variables:
+            JWT_VERIFIER_KEY: {{jwt-verifier-key}}
+            JWT_SIGNING_KEY: {{jwt-signing-key}}
         on_success:
           put: slack-alert
           params:
@@ -414,6 +417,9 @@ jobs:
           manifest: repo/uaa-server/manifest-pez-staging.yml
           path: output/app.jar
           current_app_name: home-uaa-staging
+          environment_variables:
+            JWT_VERIFIER_KEY: {{jwt-verifier-key}}
+            JWT_SIGNING_KEY: {{jwt-signing-key}}
         on_success:
           put: slack-alert
           params:
@@ -606,6 +612,9 @@ jobs:
           manifest: repo/uaa-server/manifest-pez.yml
           path: output/app.jar
           current_app_name: home-uaa
+          environment_variables:
+            JWT_VERIFIER_KEY: {{jwt-verifier-key}}
+            JWT_SIGNING_KEY: {{jwt-signing-key}}
         on_success:
           put: slack-alert
           params:
