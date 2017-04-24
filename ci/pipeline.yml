@@ -126,8 +126,10 @@ resources:
   - name: mysql
     type: docker-image
     source:
-      repository: mysql
+      repository: docker-192-168-11-210.sslip.io/library/mysql
       tag: '5.7'
+      username: {{nexus-username}}
+      password: {{nexus-password}}
   - name: m2
     type: docker-image
     source:
