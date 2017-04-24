@@ -131,7 +131,9 @@ resources:
   - name: m2
     type: docker-image
     source:
-      repository: making/home-m2
+      repository: registry-192-168-11-210.sslip.io/making/home-m2
+      username: {{nexus-username}}
+      password: {{nexus-password}}
   - name: dockerhub
     type: docker-image
     source:
