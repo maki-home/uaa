@@ -126,12 +126,16 @@ resources:
   - name: mysql
     type: docker-image
     source:
-      repository: mysql
+      repository: docker-192-168-11-210.sslip.io/library/mysql
       tag: '5.7'
+      username: {{nexus-username}}
+      password: {{nexus-password}}
   - name: m2
     type: docker-image
     source:
-      repository: making/home-m2
+      repository: registry-192-168-11-210.sslip.io/making/home-m2
+      username: {{nexus-username}}
+      password: {{nexus-password}}
   - name: dockerhub
     type: docker-image
     source:
